@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+
+# Custom ignores for this project
+get-shit-done-for-antigravity/
+referals/
+
+# Standard vite/react ignores
+.DS_Store
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
