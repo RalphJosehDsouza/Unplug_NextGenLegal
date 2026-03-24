@@ -15,6 +15,7 @@ export function RegisterPage({ onLogin }: RegisterPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   
+  const [role, setRole] = useState<'citizen' | 'lawyer'>('citizen');
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -33,7 +34,8 @@ export function RegisterPage({ onLogin }: RegisterPageProps) {
       id: '123',
       full_name: formData.full_name,
       email: formData.email,
-      role: 'citizen',
+      role: role,
+      subscriptionActive: false,
     };
 
     localStorage.setItem('accessToken', 'mock-jwt-token');
@@ -63,6 +65,10 @@ export function RegisterPage({ onLogin }: RegisterPageProps) {
         </div>
 
         <div className="p-8">
+          <div className="flex gap-4 mb-6">
+            <button type="button" onClick={() => setRole('citizen')} className={`flex-1 py-3 px-4 rounded-xl border font-medium transition-all ${role === 'citizen' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600'}`}>Citizen</button>
+            <button type="button" onClick={() => setRole('lawyer')} className={`flex-1 py-3 px-4 rounded-xl border font-medium transition-all ${role === 'lawyer' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600'}`}>Lawyer</button>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <Label htmlFor="full_name">Full Name</Label>

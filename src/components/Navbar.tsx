@@ -8,10 +8,9 @@ import {
   User, 
   LogOut, 
   FileText, 
-  Users, 
+  Users,
   Shield,
-  Home,
-  MessageCircle
+  Home
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -48,11 +47,11 @@ export function Navbar({ isLoggedIn, user, onLogin, onLogout }: NavbarProps) {
 
   const navLinks = [
     { id: '/', label: 'Home', icon: Home },
-    { id: '/lawyers', label: 'Find Lawyers', icon: Users },
-    { id: '/documents', label: 'Documents', icon: FileText },
-    { id: '/compliance', label: 'Compliance', icon: Shield },
-    { id: '/chat', label: 'AI Chatbot', icon: MessageCircle },
-    { id: '/pricing', label: 'Pricing', icon: null },
+    ...(isLoggedIn ? [
+      ...(user?.role !== 'lawyer' ? [{ id: '/lawyers', label: 'Find Lawyers', icon: Users }] : []),
+      { id: '/documents', label: 'Documents', icon: FileText },
+      { id: '/compliance', label: 'Compliance', icon: Shield },
+    ] : [])
   ];
 
   return (

@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
-const taskTypes = [
+const lawyerTaskTypes = [
   { value: 'gst_return_monthly', label: 'GST Return (Monthly)', color: 'bg-blue-500' },
   { value: 'gst_return_quarterly', label: 'GST Return (Quarterly)', color: 'bg-blue-500' },
   { value: 'rera_registration', label: 'RERA Registration', color: 'bg-purple-500' },
@@ -34,7 +34,15 @@ const taskTypes = [
   { value: 'custom', label: 'Custom Task', color: 'bg-gray-500' },
 ];
 
-const initialTasks = [
+const citizenTaskTypes = [
+  { value: 'income_tax', label: 'Income Tax Return', color: 'bg-blue-500' },
+  { value: 'property_tax', label: 'Property Tax', color: 'bg-green-500' },
+  { value: 'vehicle_insurance', label: 'Vehicle Insurance', color: 'bg-rose-500' },
+  { value: 'passport_renewal', label: 'Passport Renewal', color: 'bg-indigo-500' },
+  { value: 'custom', label: 'Custom Task', color: 'bg-gray-500' },
+];
+
+const lawyerInitialTasks = [
   { 
     id: 1, 
     type: 'gst_return_monthly', 
@@ -73,11 +81,40 @@ const initialTasks = [
   },
 ];
 
-export function ComplianceDashboard() {
-  const [tasks, setTasks] = useState(initialTasks);
+const citizenInitialTasks = [
+  { 
+    id: 1, 
+    type: 'income_tax', 
+    label: 'ITR-1 Filing', 
+    due_date: '2024-07-31', 
+    status: 'pending',
+    external_ref: 'PAN: ABCDE1234F',
+    days_left: 60,
+  },
+  { 
+    id: 2, 
+    type: 'property_tax', 
+    label: 'Municipal Property Tax', 
+    due_date: '2024-04-30', 
+    status: 'pending',
+    external_ref: 'PID: 987654321',
+    days_left: 35,
+  },
+];
+
+interface ComplianceDashboardProps {
+  user?: any;
+}
+
+export function ComplianceDashboard({ user }: ComplianceDashboardProps) {
+  const isCitizen = user?.role !== 'lawyer';
+  const taskTypes = isCitizen ? citizenTaskTypes : lawyerTaskTypes;
+  const defaultTaskType = isCitizen ? 'income_tax' : 'gst_return_monthly';
+  
+  const [tasks, setTasks] = useState(isCitizen ? citizenInitialTasks : lawyerInitialTasks);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [newTask, setNewTask] = useState({
-    type: 'gst_return_monthly',
+    type: defaultTaskType,
     label: '',
     due_date: '',
     external_ref: '',
@@ -115,7 +152,7 @@ export function ComplianceDashboard() {
     setTasks([...tasks, task]);
     setIsAddTaskOpen(false);
     setNewTask({
-      type: 'gst_return_monthly',
+      type: defaultTaskType,
       label: '',
       due_date: '',
       external_ref: '',

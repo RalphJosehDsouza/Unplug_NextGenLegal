@@ -15,6 +15,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   
+  const [role, setRole] = useState<'citizen' | 'lawyer'>('citizen');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -27,11 +28,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
 
+    // In a real app, role and sub status come from the DB.
     const mockUser = {
       id: '123',
-      full_name: 'Demo User',
+      full_name: role === 'lawyer' ? 'Adv. Demo User' : 'Demo User',
       email: formData.email,
-      role: 'citizen',
+      role: role,
+      subscriptionActive: false,
     };
 
     localStorage.setItem('accessToken', 'mock-jwt-token');
@@ -61,6 +64,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         </div>
 
         <div className="p-8">
+          <div className="flex gap-4 mb-6">
+            <button type="button" onClick={() => setRole('citizen')} className={`flex-1 py-3 px-4 rounded-xl border font-medium transition-all ${role === 'citizen' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600'}`}>Citizen</button>
+            <button type="button" onClick={() => setRole('lawyer')} className={`flex-1 py-3 px-4 rounded-xl border font-medium transition-all ${role === 'lawyer' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600'}`}>Lawyer</button>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="email">Email Address</Label>

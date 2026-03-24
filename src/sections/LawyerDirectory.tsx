@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { hireLawyer } from '../features/hiring/HiringService';
 
 // Mock lawyer data
 const lawyers = [
@@ -159,6 +160,9 @@ export function LawyerDirectory() {
   const [selectedLawyer, setSelectedLawyer] = useState<any>(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [bookingHours, setBookingHours] = useState(1);
+  const [bookingSuccess, setBookingSuccess] = useState<any>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -188,7 +192,32 @@ export function LawyerDirectory() {
 
   const handleBookConsultation = (lawyer: any) => {
     setSelectedLawyer(lawyer);
+    setBookingHours(1);
+    setBookingSuccess(null);
     setIsBookingOpen(true);
+  };
+
+  const processHiring = async () => {
+    if (!selectedLawyer) return;
+    setIsProcessing(true);
+    
+    try {
+      const response = await hireLawyer({
+        lawyerId: selectedLawyer.id,
+        lawyerName: selectedLawyer.name,
+        ratePerHour: selectedLawyer.rate_per_hour,
+        hours: bookingHours
+      });
+      
+      if (response.success) {
+        setBookingSuccess(response);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error processing payment');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -392,7 +421,7 @@ export function LawyerDirectory() {
             <DialogHeader>
               <DialogTitle>Book Consultation</DialogTitle>
             </DialogHeader>
-            {selectedLawyer && (
+            {selectedLawyer && !bookingSuccess && (
               <div className="space-y-4">
                 <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
                   <img
@@ -405,20 +434,50 @@ export function LawyerDirectory() {
                     <p className="text-sm text-gray-600">₹{selectedLawyer.rate_per_hour}/hour</p>
                   </div>
                 </div>
+                
                 <div className="space-y-3">
-                  <p className="text-sm text-gray-600">
-                    You will be redirected to complete the booking and payment process.
-                  </p>
+                  <label className="block text-sm font-medium text-gray-700">Hours to book</label>
+                  <Input 
+                    type="number" 
+                    min={1} 
+                    value={bookingHours} 
+                    onChange={(e) => setBookingHours(Number(e.target.value) || 1)} 
+                  />
+                  <div className="flex justify-between font-semibold p-2 border-t mt-2">
+                    <span>Total Amount</span>
+                    <span>₹{selectedLawyer.rate_per_hour * bookingHours}</span>
+                  </div>
                   <Button 
                     className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
-                    onClick={() => {
-                      setIsBookingOpen(false);
-                      alert('Booking feature coming soon! This would integrate with Razorpay for payments.');
-                    }}
+                    onClick={processHiring}
+                    disabled={isProcessing}
                   >
-                    Proceed to Payment
+                    {isProcessing ? 'Processing Payment...' : 'Hire & Pay'}
                   </Button>
                 </div>
+              </div>
+            )}
+            
+            {bookingSuccess && (
+              <div className="space-y-4 p-4 text-center">
+                <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Successfully Hired!</h3>
+                <p className="text-gray-600">{bookingSuccess.message}</p>
+                <div className="bg-gray-50 p-4 rounded-xl text-left text-sm mt-4 space-y-2">
+                  <div className="flex justify-between"><span>Transaction ID:</span> <strong>{bookingSuccess.transactionId}</strong></div>
+                  <div className="flex justify-between"><span>Total Paid:</span> <strong>₹{bookingSuccess.totalAmount}</strong></div>
+                  <div className="flex justify-between text-gray-400"><span>Platform Commission Recorded:</span> <span>₹{bookingSuccess.commission}</span></div>
+                </div>
+                <Button 
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white mt-4"
+                  onClick={() => setIsBookingOpen(false)}
+                >
+                  Close
+                </Button>
               </div>
             )}
           </DialogContent>

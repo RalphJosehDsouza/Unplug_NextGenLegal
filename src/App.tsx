@@ -9,11 +9,11 @@ import { LandingPage } from './pages/LandingPage';
 import { LawyersPage } from './pages/LawyersPage';
 import { DocumentsPage } from './pages/DocumentsPage';
 import { CompliancePage } from './pages/CompliancePage';
-import { PricingPage } from './pages/PricingPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ChatPage } from './pages/ChatPage';
+import { CasesPage } from './pages/CasesPage';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -63,14 +63,14 @@ function App() {
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<LandingPage onRegister={navigateToRegister} />} />
-          <Route path="/lawyers" element={<LawyersPage />} />
-          <Route path="/documents" element={<DocumentsPage />} />
-          <Route path="/compliance" element={<CompliancePage />} />
-          <Route path="/pricing" element={<PricingPage onRegister={navigateToRegister} />} />
+          <Route path="/lawyers" element={isLoggedIn ? (user?.role === 'lawyer' ? <Navigate to="/dashboard" replace /> : <LawyersPage />) : <Navigate to="/login" replace />} />
+          <Route path="/documents" element={isLoggedIn ? <DocumentsPage /> : <Navigate to="/login" replace />} />
+          <Route path="/compliance" element={isLoggedIn ? <CompliancePage user={user} /> : <Navigate to="/login" replace />} />
           
           <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
           <Route path="/register" element={<RegisterPage onLogin={handleLogin} />} />
-          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/chat" element={isLoggedIn ? <ChatPage /> : <Navigate to="/login" replace />} />
+          <Route path="/cases" element={isLoggedIn ? <CasesPage user={user} /> : <Navigate to="/login" replace />} />
           
           <Route 
             path="/dashboard" 
