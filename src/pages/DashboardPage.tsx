@@ -10,7 +10,7 @@ interface DashboardPageProps {
 
 export function DashboardPage({ user }: DashboardPageProps) {
   const isLawyer = user?.role === 'lawyer';
-  const [hasSubscription, setHasSubscription] = useState(user?.subscriptionActive || false);
+  const [hasSubscription, setHasSubscription] = useState(Boolean(user?.plan && user.plan !== 'freemium'));
 
   if (isLawyer && !hasSubscription) {
     return (
@@ -24,8 +24,6 @@ export function DashboardPage({ user }: DashboardPageProps) {
           <div className="text-4xl font-bold text-gray-900 mb-6">₹60<span className="text-lg text-gray-500 font-normal">/month</span></div>
           <Button onClick={() => {
               setHasSubscription(true);
-              const updatedUser = { ...user, subscriptionActive: true };
-              localStorage.setItem('user', JSON.stringify(updatedUser));
               toast.success("Subscription activated successfully!");
           }} className="w-full bg-indigo-600 text-white hover:bg-indigo-700 py-6 text-lg font-semibold rounded-xl">
             Subscribe Now

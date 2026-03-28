@@ -1,73 +1,42 @@
-# React + TypeScript + Vite
+# NextGenLegal (Legal Tech) - Frontend + Backend Starter
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repo contains a React + TailwindCSS (ShadCN UI) frontend and an Express + Sequelize + PostgreSQL backend for the NextGenLegal platform.
 
-Currently, two official plugins are available:
+## Tech Stack
+- Node.js + Express (API server)
+- Sequelize ORM + PostgreSQL 15
+- Redis (ioredis) for rate limiting + caching
+- JWT auth (access token) + httpOnly refresh cookie
+- AWS S3 (SDK v3) for secure document storage
+- Puppeteer + Handlebars for server-side document generation
+- Gemini (server-side chatbot) + ActivityLog persistence
+- Compliance monitoring + cron notifications (email/SMS/WhatsApp + in-app notifications)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Key Frontend Routes
+- `/documents` -> Document Studio (template library)
+- `/doc-studio/generate/:template_name` -> document generator form + live preview
+- `/my-documents` -> secure document download list
+- `/lawyers` -> lawyer directory search + pagination
+- `/lawyers/:id` -> lawyer profile + slot picker + booking flow
+- `/my-bookings` -> upcoming/past bookings + reviews
+- `/compliance` -> compliance Kanban + add/edit tasks + notification bell
 
-## React Compiler
+## Key Backend Routes
+- Auth: `/api/auth/*`
+- Documents: `/api/docs/*`
+- Lawyers: `/api/lawyers*`
+- Bookings: `/api/bookings*`
+- Reviews: `/api/bookings/:id/review`
+- Compliance: `/api/compliance*`
+- Notifications: `/api/notifications*`
+- Chatbot: `/api/chat`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Configuration
+Backend env template: `app/backend/.env.example`
+Docker services: `app/docker-compose.yml`
 
-## Expanding the ESLint configuration
+## Notes
+Some integrations (Razorpay, Daily.co, MSG91, SMTP, S3, Gemini) require you to set the corresponding env vars before running those flows.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Implementation inventory: `app/docs/NEXTGENLEGAL_IMPLEMENTED.md`.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```

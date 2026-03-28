@@ -19,10 +19,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { NotificationBell } from '@/components/NotificationBell';
+import type { AuthUser } from '@/store/authStore';
 
 interface NavbarProps {
   isLoggedIn: boolean;
-  user: any;
+  user: AuthUser | null;
   onLogin: () => void;
   onLogout: () => void;
 }
@@ -88,31 +90,42 @@ export function Navbar({ isLoggedIn, user, onLogin, onLogout }: NavbarProps) {
           {/* Desktop Auth */}
           <div className="hidden lg:flex items-center gap-4">
             {isLoggedIn ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                      <User className="w-4 h-4 text-indigo-600" />
-                    </div>
-                    <span className="font-medium">{user?.full_name?.split(' ')[0] || 'User'}</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/dashboard')}>
-                    <Home className="w-4 h-4 mr-2" />
-                    Dashboard
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/documents')}>
-                    <FileText className="w-4 h-4 mr-2" />
-                    My Documents
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onLogout} className="cursor-pointer text-red-600">
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <>
+                <NotificationBell />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4 text-indigo-600" />
+                      </div>
+                      <span className="font-medium">{user?.full_name?.split(' ')[0] || 'User'}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/dashboard')}>
+                      <Home className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/documents')}>
+                      <FileText className="w-4 h-4 mr-2" />
+                      Document Studio
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/my-documents')}>
+                      <FileText className="w-4 h-4 mr-2" />
+                      My Documents
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/compliance')}>
+                      <Shield className="w-4 h-4 mr-2" />
+                      Compliance
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={onLogout} className="cursor-pointer text-red-600">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             ) : (
               <>
                 <Button variant="ghost" onClick={onLogin} className="font-medium">
@@ -156,6 +169,9 @@ export function Navbar({ isLoggedIn, user, onLogin, onLogout }: NavbarProps) {
               <div className="border-t border-gray-100 mt-2 pt-2 px-4">
                 {isLoggedIn ? (
                   <>
+                    <div className="py-2">
+                      <NotificationBell />
+                    </div>
                     <Link
                       to="/dashboard"
                       onClick={handleLinkClick}

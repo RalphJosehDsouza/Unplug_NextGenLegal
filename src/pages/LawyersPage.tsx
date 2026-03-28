@@ -1,9 +1,7 @@
-import { LawyerDirectory } from '../sections/LawyerDirectory';
+import { LawyerSearch } from './Lawyers/LawyerSearch';
 
 export function LawyersPage() {
   return (
-    <div className="pt-20">
-      <LawyerDirectory />
-    </div>
+    <LawyerSearch />
   );
 }

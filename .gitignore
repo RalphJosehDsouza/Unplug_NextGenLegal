@@ -2,6 +2,12 @@ node_modules/
 dist/
 .env
 
+# Backend
+backend/node_modules/
+backend/dist/
+backend/.env
+backend/.env.*
+
 # Custom ignores for this project
 get-shit-done-for-antigravity/
 referals/
@@ -12,3 +18,8 @@ referals/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Editor / OS
+.vscode/
+.idea/
+.cursor/

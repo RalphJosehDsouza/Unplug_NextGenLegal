@@ -13,18 +13,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import api from '@/api/axios';
+import { useAuthStore } from '@/store/authStore';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   mode: 'login' | 'register';
-  onLogin: (userData: any) => void;
+  onLogin: (userData: unknown) => void;
 }
 
 export function AuthModal({ isOpen, onClose, mode, onLogin }: AuthModalProps) {
   const [currentMode, setCurrentMode] = useState<'login' | 'register'>(mode);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const loginAction = useAuthStore((s) => s.login);
   
   const [formData, setFormData] = useState({
     full_name: '',
@@ -36,25 +39,34 @@ export function AuthModal({ isOpen, onClose, mode, onLogin }: AuthModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    try {
+      const response =
+        currentMode === 'login'
+          ? await api.post('/api/auth/login', {
+              email: formData.email,
+              password: formData.password,
+            })
+          : await api.post('/api/auth/register', {
+              full_name: formData.full_name,
+              email: formData.email,
+              phone: formData.phone,
+              password: formData.password,
+              role: 'citizen',
+            });
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+      const { accessToken, user } = response.data.data;
+      loginAction({ accessToken, user });
 
-    // Mock successful authentication
-    const mockUser = {
-      id: '123',
-      full_name: currentMode === 'register' ? formData.full_name : 'Demo User',
-      email: formData.email,
-      role: 'citizen',
-    };
-
-    // Store token
-    localStorage.setItem('accessToken', 'mock-jwt-token');
-    localStorage.setItem('user', JSON.stringify(mockUser));
-
-    toast.success(currentMode === 'login' ? 'Welcome back!' : 'Account created successfully!');
-    onLogin(mockUser);
-    setIsLoading(false);
+      toast.success(currentMode === 'login' ? 'Welcome back!' : 'Account created successfully!');
+      onLogin(user);
+    } catch (err) {
+      const message =
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        'Authentication failed';
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

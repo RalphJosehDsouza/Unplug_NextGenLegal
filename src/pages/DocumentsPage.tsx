@@ -1,9 +1,7 @@
-import { DocumentStudio } from '../sections/DocumentStudio';
+import { TemplateLibrary } from './DocStudio/TemplateLibrary';
 
 export function DocumentsPage() {
   return (
-    <div className="pt-20">
-      <DocumentStudio />
-    </div>
+    <TemplateLibrary />
   );
 }
