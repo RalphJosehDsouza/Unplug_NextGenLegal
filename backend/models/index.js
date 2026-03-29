@@ -32,6 +32,9 @@ ComplianceTask.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 User.hasMany(ActivityLog, { foreignKey: 'user_id', as: 'activityLogs' });
 ActivityLog.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
+Document.hasMany(ActivityLog, { foreignKey: 'resource_id', as: 'activityLogs', constraints: false });
+ActivityLog.belongsTo(Document, { foreignKey: 'resource_id', as: 'document', constraints: false });
+
 User.hasMany(Notification, { foreignKey: 'user_id', as: 'notifications' });
 Notification.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 

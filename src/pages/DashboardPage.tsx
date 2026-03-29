@@ -1,16 +1,66 @@
 import { FileText, Users, Shield, MessageCircle, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import api from '@/api/axios';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { SecureViewer } from '@/features/documents/SecureViewer';
 
 interface DashboardPageProps {
   user: any;
 }
 
+type ActivityItem = {
+  id: string;
+  created_at: string;
+  uploader: { id: string | null; name: string };
+  document: { id: string; title: string; viewer_policy: 'view_only' | 'download_allowed' };
+};
+
+const backendBase = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+
 export function DashboardPage({ user }: DashboardPageProps) {
   const isLawyer = user?.role === 'lawyer';
   const [hasSubscription, setHasSubscription] = useState(Boolean(user?.plan && user.plan !== 'freemium'));
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerUrl, setViewerUrl] = useState<string | null>(null);
+  const [viewerFileName, setViewerFileName] = useState('');
+
+  const activityQuery = useQuery({
+    queryKey: ['recent-activity', user?.role],
+    staleTime: 60 * 1000,
+    queryFn: async () => {
+      const resp = await api.get('/api/activity/recent?limit=10');
+      return (resp?.data?.data?.items || []) as ActivityItem[];
+    },
+  });
+
+  const recentItems = activityQuery.data || [];
+
+  const handleOpenViewer = async (docId: string, title: string) => {
+    try {
+      const tokenResp = await api.post(`/api/docs/${docId}/view-token`);
+      const token = tokenResp?.data?.data?.view_token;
+      if (!token) throw new Error('Unable to open document');
+
+      setViewerFileName(title);
+      setViewerUrl(`${backendBase}/api/docs/${docId}/stream?token=${encodeURIComponent(token)}`);
+      setViewerOpen(true);
+    } catch (err) {
+      const message =
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        'Could not open document';
+      toast.error(message);
+    }
+  };
 
   if (isLawyer && !hasSubscription) {
     return (
@@ -101,11 +151,54 @@ export function DashboardPage({ user }: DashboardPageProps) {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>
-          <div className="py-8 text-center text-gray-500 border-2 border-dashed border-gray-100 rounded-xl">
-            You don't have any recent activity yet.
-          </div>
+          {activityQuery.isLoading ? (
+            <div className="py-8 text-center text-gray-500 border-2 border-dashed border-gray-100 rounded-xl">
+              Loading activity...
+            </div>
+          ) : recentItems.length === 0 ? (
+            <div className="py-8 text-center text-gray-500 border-2 border-dashed border-gray-100 rounded-xl">
+              You don't have any recent activity yet.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentItems.map((item) => (
+                <button
+                  key={item.id}
+                  className="w-full text-left rounded-xl border border-gray-100 px-4 py-3 hover:border-indigo-200 hover:bg-indigo-50/40 transition-colors"
+                  onClick={() => handleOpenViewer(item.document.id, item.document.title)}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="font-medium text-gray-900">{item.document.title}</div>
+                    <Badge variant="secondary" className="bg-indigo-50 text-indigo-800 border-indigo-100">
+                      View
+                    </Badge>
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">
+                    Uploaded by {item.uploader.name} • {new Date(item.created_at).toLocaleString()}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
+
+      <Dialog
+        open={viewerOpen}
+        onOpenChange={(open) => {
+          setViewerOpen(open);
+          if (!open) {
+            setViewerUrl(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{viewerFileName || 'Document Viewer'}</DialogTitle>
+          </DialogHeader>
+          {viewerUrl ? <SecureViewer documentUrl={viewerUrl} fileName={viewerFileName || 'Document'} /> : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

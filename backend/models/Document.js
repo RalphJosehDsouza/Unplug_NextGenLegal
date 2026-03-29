@@ -9,6 +9,7 @@ const docTypes = [
   'employment_contract',
   'affidavit',
   'power_of_attorney',
+  'uploaded_pdf',
 ];
 
 export const Document = sequelize.define(
@@ -31,6 +32,34 @@ export const Document = sequelize.define(
     title: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    source_type: {
+      type: DataTypes.ENUM('generated', 'uploaded'),
+      allowNull: false,
+      defaultValue: 'generated',
+    },
+    mime_type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'application/pdf',
+    },
+    file_size_bytes: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    uploader_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    viewer_policy: {
+      type: DataTypes.ENUM('view_only', 'download_allowed'),
+      allowNull: false,
+      defaultValue: 'view_only',
+    },
+    share_scope: {
+      type: DataTypes.ENUM('owner_only', 'all_lawyers'),
+      allowNull: false,
+      defaultValue: 'owner_only',
     },
     s3_key: {
       type: DataTypes.STRING,

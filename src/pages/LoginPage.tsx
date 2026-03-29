@@ -13,6 +13,7 @@ export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const loginAction = useAuthStore((s) => s.login);
+  const logoutAction = useAuthStore((s) => s.logout);
   
   const [role, setRole] = useState<'citizen' | 'lawyer'>('citizen');
   const [formData, setFormData] = useState({
@@ -30,6 +31,13 @@ export function LoginPage() {
       });
 
       const { accessToken, user } = response.data.data;
+
+      if (user?.role !== role) {
+        logoutAction();
+        toast.error(`This account is registered as ${user?.role}. Please choose the ${user?.role} tab to continue.`);
+        return;
+      }
+
       loginAction({ accessToken, user });
 
       toast.success('Welcome back!');

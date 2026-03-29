@@ -27,9 +27,9 @@ export default async function authMiddleware(req, res, next) {
 
     // Optional: ensure the user exists (and normalized role).
     if (id) {
-      const user = await User.findByPk(id, { attributes: ['id', 'role'] });
+      const user = await User.findByPk(id, { attributes: ['id', 'role', 'full_name'] });
       if (!user) return next({ statusCode: 401, message: 'User not found' });
-      req.user = { id: user.id, role: user.role, plan: plan || 'freemium' };
+      req.user = { id: user.id, role: user.role, full_name: user.full_name, plan: plan || 'freemium' };
     } else {
       req.user = { id, role, plan: plan || 'freemium' };
     }

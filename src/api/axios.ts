@@ -39,6 +39,18 @@ api.interceptors.response.use(
 
         if (newAccessToken) {
           useAuthStore.getState().setAccessToken(newAccessToken);
+
+          try {
+            const meResponse = await api.get('/api/auth/me', {
+              headers: { Authorization: `Bearer ${newAccessToken}` },
+            });
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            useAuthStore.getState().setUser((meResponse as any)?.data?.data || null);
+          } catch {
+            useAuthStore.getState().logout();
+            return Promise.reject(error);
+          }
+
           originalConfig.headers = originalConfig.headers || {};
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (originalConfig.headers as any).Authorization = `Bearer ${newAccessToken}`;

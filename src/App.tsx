@@ -52,6 +52,7 @@ function App() {
           const resp = await api.get('/api/auth/me');
           setUser(resp.data.data);
         } catch {
+          setAccessToken(null);
           setUser(null);
         }
       }
@@ -64,8 +65,10 @@ function App() {
   }, []);
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    api.post('/api/auth/logout').catch(() => undefined).finally(() => {
+      logout();
+      navigate('/');
+    });
   };
 
   const navigateToRegister = () => {

@@ -2,63 +2,49 @@ import { Router } from 'express';
 
 import authMiddleware from '../middleware/authMiddleware.js';
 
-import { createTask, deleteTask, listTasks, stats, updateTask } from '../controllers/complianceController.js';
+import {
+  createTask,
+  deleteTask,
+  listTasks,
+  stats,
+  updateTask
+} from '../controllers/complianceController.js';
 
 const router = Router();
 
-router.post('/', authMiddleware, async (req, res, next) => {
-  try {
-    return await createTask(req, res, next);
-  } catch (err) {
-    return next(err);
-  }
-});
+/**
+ * @route   GET /api/compliance/stats
+ * @desc    Get compliance statistics
+ * @access  Private
+ */
+router.get('/stats', authMiddleware, stats);
 
-router.get('/', authMiddleware, async (req, res, next) => {
-  try {
-    return await listTasks(req, res, next);
-  } catch (err) {
-    return next(err);
-  }
-});
+/**
+ * @route   GET /api/compliance
+ * @desc    Get all compliance tasks
+ * @access  Private
+ */
+router.get('/', authMiddleware, listTasks);
 
-router.patch('/:id', authMiddleware, async (req, res, next) => {
-  try {
-    return await updateTask(req, res, next);
-  } catch (err) {
-    return next(err);
-  }
-});
+/**
+ * @route   POST /api/compliance
+ * @desc    Create a new compliance task
+ * @access  Private
+ */
+router.post('/', authMiddleware, createTask);
 
-router.delete('/:id', authMiddleware, async (req, res, next) => {
-  try {
-    return await deleteTask(req, res, next);
-  } catch (err) {
-    return next(err);
-  }
-});
+/**
+ * @route   PATCH /api/compliance/:id
+ * @desc    Update a compliance task
+ * @access  Private
+ */
+router.patch('/:id', authMiddleware, updateTask);
 
-router.get('/stats', authMiddleware, async (req, res, next) => {
-  try {
-    return await stats(req, res, next);
-  } catch (err) {
-    return next(err);
-  }
-});
+/**
+ * @route   DELETE /api/compliance/:id
+ * @desc    Delete a compliance task
+ * @access  Private
+ */
+router.delete('/:id', authMiddleware, deleteTask);
 
 export default router;
-
-import { Router } from 'express';
-
-const router = Router();
-
-router.get('/', async (req, res, next) => {
-  try {
-    return res.json({ success: true, data: { message: 'Compliance API placeholder' } });
-  } catch (err) {
-    return next(err);
-  }
-});
-
-export default router;
-

@@ -12,6 +12,7 @@ import complianceRoutes from './routes/complianceRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import activityRoutes from './routes/activityRoutes.js';
 import { startComplianceAlertsCron } from './cron/complianceAlerts.js';
 
 import errorHandler from './middleware/errorHandler.js';
@@ -24,13 +25,14 @@ app.disable('x-powered-by');
 // Strict CSP for an API-only service.
 app.use(
   helmet({
+    xFrameOptions: false,
     contentSecurityPolicy: {
       useDefaults: false,
       directives: {
         defaultSrc: ["'none'"],
         baseUri: ["'none'"],
         formAction: ["'none'"],
-        frameAncestors: ["'none'"],
+        frameAncestors: ["'self'", process.env.FRONTEND_URL],
         objectSrc: ["'none'"],
         scriptSrc: ["'none'"],
         styleSrc: ["'none'"],
@@ -87,6 +89,7 @@ app.use('/api/payments', apiLimiter, paymentsRoutes);
 app.use('/api/compliance', apiLimiter, complianceRoutes);
 app.use('/api/notifications', apiLimiter, notificationRoutes);
 app.use('/api/chat', chatLimiter, chatRoutes);
+app.use('/api/activity', apiLimiter, activityRoutes);
 
 // Start background schedulers
 startComplianceAlertsCron();

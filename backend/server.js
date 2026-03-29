@@ -5,7 +5,9 @@ dotenv.config();
 import app from './app.js';
 import { connectDb } from './config/db.js';
 import { connectRedis } from './config/redis.js';
-
+import dns from 'dns';
+import './models/User.js';   // 🔴 REQUIRED
+dns.setDefaultResultOrder('ipv4first');
 async function start() {
   // Initialize DB (with retries) before accepting requests.
   await connectDb();
@@ -23,10 +25,8 @@ async function start() {
     console.log(`[server] NextGenLegal API listening on port ${port}`);
   });
 }
-
 start().catch((err) => {
   // eslint-disable-next-line no-console
   console.error('[server] failed to start', err);
   process.exit(1);
 });
-

@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
-  Download,
+  Eye,
   Trash2,
   FileText,
   FileSignature,
   Scale,
   Shield,
   Clock,
+  Upload,
 } from 'lucide-react';
 
 import api from '@/api/axios';
@@ -32,7 +33,12 @@ type DocumentRow = {
   signed: boolean;
   signed_at: string | null;
   created_at: string;
+  source_type?: 'generated' | 'uploaded';
+  uploader_name?: string | null;
+  viewer_policy?: 'view_only' | 'download_allowed';
 };
+
+const backendBase = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
 
 function formatDDMMYYYY(iso: string) {
   const d = new Date(iso);
@@ -72,11 +78,14 @@ export function MyDocuments() {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerUrl, setViewerUrl] = useState<string | null>(null);
   const [viewerFileName, setViewerFileName] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const handleViewerOpenChange = (open: boolean) => {
     setViewerOpen(open);
     if (!open && viewerUrl) {
-      URL.revokeObjectURL(viewerUrl);
+      if (viewerUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(viewerUrl);
+      }
       setViewerUrl(null);
     }
   };
@@ -99,19 +108,49 @@ export function MyDocuments() {
     }
   }, [location.state]);
 
-  const handleDownload = async (doc: DocumentRow) => {
+  const handleOpenViewer = async (doc: DocumentRow) => {
     try {
-      const resp = await api.get(`/api/docs/${doc.id}/download`, { responseType: 'blob' });
-      const blob = resp.data instanceof Blob ? resp.data : new Blob([resp.data], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
+      const tokenResp = await api.post(`/api/docs/${doc.id}/view-token`);
+      const token = tokenResp?.data?.data?.view_token;
+      if (!token) throw new Error('Unable to open document');
+
+      const url = `${backendBase}/api/docs/${doc.id}/stream?token=${encodeURIComponent(token)}`;
       setViewerFileName(doc.title);
       setViewerUrl(url);
       setViewerOpen(true);
     } catch (err) {
       const message =
         (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
-        'Download failed';
+        'Open viewer failed';
       toast.error(message);
+    }
+  };
+
+  const handleUploadPdf = async (file: File | null) => {
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+      toast.error('Only PDF files are allowed.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('title', file.name.replace(/\.pdf$/i, ''));
+
+    try {
+      setUploading(true);
+      await api.post('/api/docs/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      toast.success('PDF uploaded successfully.');
+      query.refetch();
+    } catch (err) {
+      const message =
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        'Upload failed';
+      toast.error(message);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -134,11 +173,29 @@ export function MyDocuments() {
         <div className="flex items-start justify-between gap-6 mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">My Documents</h2>
-            <p className="text-gray-600 mt-1">Securely generated and ready for download.</p>
+            <p className="text-gray-600 mt-1">Securely generated or uploaded documents in protected view mode.</p>
           </div>
-          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => navigate('/documents')}>
-            Generate new
-          </Button>
+          <div className="flex items-center gap-3">
+            <label className="inline-flex">
+              <input
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  handleUploadPdf(file);
+                  e.currentTarget.value = '';
+                }}
+              />
+              <span className="inline-flex items-center justify-center rounded-md border border-indigo-200 px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50 cursor-pointer">
+                <Upload className="w-4 h-4 mr-2" />
+                {uploading ? 'Uploading...' : 'Upload PDF'}
+              </span>
+            </label>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => navigate('/documents')}>
+              Generate new
+            </Button>
+          </div>
         </div>
 
         {query.isLoading ? (
@@ -190,6 +247,9 @@ export function MyDocuments() {
                     <div>
                       <div className="font-semibold text-gray-900">{doc.title}</div>
                       <div className="text-sm text-gray-500 mt-1">Created: {formatDDMMYYYY(doc.created_at)}</div>
+                      {doc.uploader_name ? (
+                        <div className="text-sm text-gray-500">Uploaded by: {doc.uploader_name}</div>
+                      ) : null}
                     </div>
                   </div>
 
@@ -198,14 +258,17 @@ export function MyDocuments() {
                       {badge.label}
                     </Badge>
                     <SignedBadge signed={doc.signed} />
+                    <Badge variant="secondary" className="bg-slate-50 text-slate-700 border-slate-200">
+                      {doc.source_type === 'uploaded' ? 'Uploaded' : 'Generated'}
+                    </Badge>
 
                     <Button
                       variant="outline"
                       className="border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-                      onClick={() => handleDownload(doc)}
+                      onClick={() => handleOpenViewer(doc)}
                     >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download
+                      <Eye className="w-4 h-4 mr-2" />
+                      Open
                     </Button>
                     <Button
                       variant="outline"
