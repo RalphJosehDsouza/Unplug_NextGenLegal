@@ -13,7 +13,9 @@ import chatRoutes from './routes/chatRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import activityRoutes from './routes/activityRoutes.js';
+import courtHouseRoutes from './routes/courtHouseRoutes.js';
 import { startComplianceAlertsCron } from './cron/complianceAlerts.js';
+import { startCourtHearingAlertsCron } from './cron/courtHearingAlerts.js';
 
 import errorHandler from './middleware/errorHandler.js';
 import passport from 'passport';
@@ -90,9 +92,11 @@ app.use('/api/compliance', apiLimiter, complianceRoutes);
 app.use('/api/notifications', apiLimiter, notificationRoutes);
 app.use('/api/chat', chatLimiter, chatRoutes);
 app.use('/api/activity', apiLimiter, activityRoutes);
+app.use('/api/courthouse', apiLimiter, courtHouseRoutes);
 
 // Start background schedulers
 startComplianceAlertsCron();
+startCourtHearingAlertsCron();
 
 // 404 -> centralized error handler
 app.use((req, res, next) => {

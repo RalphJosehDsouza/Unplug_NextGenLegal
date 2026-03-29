@@ -9,6 +9,10 @@ import { ComplianceTask } from './ComplianceTask.js';
 import { ActivityLog } from './ActivityLog.js';
 import { Review } from './Review.js';
 import { Notification } from './Notification.js';
+import { CaseType } from './CaseType.js';
+import { CaseTypeRequiredDocument } from './CaseTypeRequiredDocument.js';
+import { CourtHearing } from './CourtHearing.js';
+import { CourtHearingDocument } from './CourtHearingDocument.js';
 
 // Associations
 User.hasMany(Document, { foreignKey: 'user_id', as: 'documents' });
@@ -43,6 +47,36 @@ Review.belongsTo(Booking, { foreignKey: 'booking_id', as: 'booking' });
 
 Review.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
+CaseType.hasMany(CaseTypeRequiredDocument, {
+  foreignKey: 'case_type_id',
+  as: 'required_documents',
+});
+CaseTypeRequiredDocument.belongsTo(CaseType, {
+  foreignKey: 'case_type_id',
+  as: 'caseType',
+});
+
+User.hasMany(CourtHearing, { foreignKey: 'lawyer_id', as: 'courtHearings' });
+CourtHearing.belongsTo(User, { foreignKey: 'lawyer_id', as: 'lawyer' });
+
+CaseType.hasMany(CourtHearing, { foreignKey: 'case_type_id', as: 'hearings' });
+CourtHearing.belongsTo(CaseType, { foreignKey: 'case_type_id', as: 'caseType' });
+
+CourtHearing.hasMany(CourtHearingDocument, { foreignKey: 'court_hearing_id', as: 'uploads' });
+CourtHearingDocument.belongsTo(CourtHearing, { foreignKey: 'court_hearing_id', as: 'hearing' });
+
+CaseTypeRequiredDocument.hasMany(CourtHearingDocument, {
+  foreignKey: 'required_document_id',
+  as: 'uploads',
+});
+CourtHearingDocument.belongsTo(CaseTypeRequiredDocument, {
+  foreignKey: 'required_document_id',
+  as: 'requiredDocument',
+});
+
+Document.hasMany(CourtHearingDocument, { foreignKey: 'document_id', as: 'courtHearingLinks' });
+CourtHearingDocument.belongsTo(Document, { foreignKey: 'document_id', as: 'document' });
+
 export {
   sequelize,
   User,
@@ -54,5 +88,9 @@ export {
   ActivityLog,
   Review,
   Notification,
+  CaseType,
+  CaseTypeRequiredDocument,
+  CourtHearing,
+  CourtHearingDocument,
 };
 

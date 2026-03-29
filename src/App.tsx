@@ -20,6 +20,7 @@ import { useAuthStore } from '@/store/authStore';
 import { GenerateDocument } from './pages/DocStudio/GenerateDocument';
 import { MyDocuments } from './pages/MyDocuments';
 import { MyBookings } from './pages/MyBookings';
+import { CourtHousePage } from './pages/CourtHousePage';
 
 function App() {
   const navigate = useNavigate();
@@ -117,6 +118,16 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/chat" element={isLoggedIn ? <ChatPage /> : <Navigate to="/login" replace />} />
             <Route path="/cases" element={isLoggedIn ? <CasesPage user={user} /> : <Navigate to="/login" replace />} />
+            <Route
+              path="/courthouse"
+              element={
+                isLoggedIn ? (
+                  user?.role === 'lawyer' ? <CourtHousePage user={user} /> : <Navigate to="/dashboard" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
             
             <Route 
               path="/dashboard" 

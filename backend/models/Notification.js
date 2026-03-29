@@ -29,7 +29,7 @@ export const Notification = sequelize.define(
       defaultValue: false,
     },
     type: {
-      type: DataTypes.ENUM('compliance', 'booking', 'system'),
+      type: DataTypes.ENUM('compliance', 'booking', 'system', 'court_hearing'),
       allowNull: false,
       defaultValue: 'system',
     },

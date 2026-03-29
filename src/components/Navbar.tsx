@@ -10,7 +10,8 @@ import {
   FileText, 
   Users,
   Shield,
-  Home
+  Home,
+  Building2
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -91,6 +92,15 @@ export function Navbar({ isLoggedIn, user, onLogin, onLogout }: NavbarProps) {
           <div className="hidden lg:flex items-center gap-4">
             {isLoggedIn ? (
               <>
+                {user?.role === 'lawyer' ? (
+                  <Button
+                    onClick={() => navigate('/courthouse')}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  >
+                    <Building2 className="w-4 h-4 mr-2" />
+                    CourtHouse
+                  </Button>
+                ) : null}
                 <NotificationBell />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -118,6 +128,12 @@ export function Navbar({ isLoggedIn, user, onLogin, onLogout }: NavbarProps) {
                       <Shield className="w-4 h-4 mr-2" />
                       Compliance
                     </DropdownMenuItem>
+                    {user?.role === 'lawyer' ? (
+                      <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/courthouse')}>
+                        <Building2 className="w-4 h-4 mr-2" />
+                        CourtHouse
+                      </DropdownMenuItem>
+                    ) : null}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={onLogout} className="cursor-pointer text-red-600">
                       <LogOut className="w-4 h-4 mr-2" />
