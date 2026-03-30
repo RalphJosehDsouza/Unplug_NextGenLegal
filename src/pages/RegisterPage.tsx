@@ -8,6 +8,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '@/api/axios';
 import { useAuthStore } from '@/store/authStore';
 
+const COURT_HOUSE_CASE_TYPES = ['Criminal', 'Divorce', 'Civil', 'Property', 'Corporate'];
+
 export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,11 +22,29 @@ export function RegisterPage() {
     phone: '',
     password: '',
   });
+  const [lawyerProfile, setLawyerProfile] = useState({
+    specialization: '',
+    hourly_fee: '',
+  });
 
   const loginAction = useAuthStore((s) => s.login);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (role === 'lawyer') {
+      if (!lawyerProfile.specialization) {
+        toast.error('Please select your law speciality.');
+        return;
+      }
+
+      const fee = Number(lawyerProfile.hourly_fee);
+      if (!Number.isFinite(fee) || fee <= 0) {
+        toast.error('Please enter a valid hourly fee.');
+        return;
+      }
+    }
+
     setIsLoading(true);
     try {
       const response = await api.post('/api/auth/register', {
@@ -33,6 +53,12 @@ export function RegisterPage() {
         phone: formData.phone,
         password: formData.password,
         role,
+        ...(role === 'lawyer'
+          ? {
+              specialization: [lawyerProfile.specialization],
+              rate_per_hour: Math.round(Number(lawyerProfile.hourly_fee) * 100),
+            }
+          : {}),
       });
 
       const { accessToken, user } = response.data.data;
@@ -52,6 +78,12 @@ export function RegisterPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleLawyerProfileChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    setLawyerProfile({ ...lawyerProfile, [e.target.name]: e.target.value });
   };
 
   return (
@@ -146,6 +178,50 @@ export function RegisterPage() {
                 </button>
               </div>
             </div>
+
+            {role === 'lawyer' ? (
+              <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 space-y-4">
+                <div className="text-sm font-semibold text-indigo-900">Lawyer Profile</div>
+
+                <div>
+                  <Label htmlFor="specialization">Law Speciality</Label>
+                  <select
+                    id="specialization"
+                    name="specialization"
+                    value={lawyerProfile.specialization}
+                    onChange={handleLawyerProfileChange}
+                    className="mt-1 w-full h-10 rounded-md border border-gray-200 bg-white px-3 text-sm"
+                    required={role === 'lawyer'}
+                  >
+                    <option value="">Select speciality</option>
+                    {COURT_HOUSE_CASE_TYPES.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <Label htmlFor="hourly_fee">Hourly Fee (INR)</Label>
+                  <div className="relative mt-1">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+                    <Input
+                      id="hourly_fee"
+                      name="hourly_fee"
+                      type="number"
+                      min={1}
+                      step={100}
+                      placeholder="2000"
+                      value={lawyerProfile.hourly_fee}
+                      onChange={handleLawyerProfileChange}
+                      className="pl-8"
+                      required={role === 'lawyer'}
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             <Button
               type="submit"

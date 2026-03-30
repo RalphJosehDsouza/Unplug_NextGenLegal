@@ -97,6 +97,29 @@ export const Booking = sequelize.define(
       allowNull: false,
       defaultValue: Sequelize.literal('NOW()'),
     },
+    // WebRTC video call fields
+    call_status: {
+      type: DataTypes.ENUM('pending', 'accepted', 'scheduled', 'active', 'completed', 'rejected'),
+      allowNull: true,
+      defaultValue: null,
+    },
+    scheduled_call_time: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    webrtc_room_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: true,
+    },
+    call_started_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    call_ended_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     tableName: 'bookings',

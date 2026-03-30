@@ -9,26 +9,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
-declare global {
-  interface Window {
-    Razorpay?: any;
-  }
-}
-
 function formatRupeesFromPaisa(paisa: number) {
   const rupees = Math.round((Number(paisa) || 0) / 100);
   return rupees.toLocaleString('en-IN');
-}
-
-function loadRazorpay() {
-  return new Promise<void>((resolve, reject) => {
-    if (window.Razorpay) return resolve();
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load Razorpay'));
-    document.body.appendChild(script);
-  });
 }
 
 function googleCalendarUrl({ title, startIso, durationMins, details }: { title: string; startIso: string; durationMins: number; details: string }) {
@@ -51,14 +34,12 @@ export function BookingFlow({
   lawyerId,
   lawyerName,
   ratePerHourPaisa,
-  slotTimeIso,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   lawyerId: string;
   lawyerName: string;
   ratePerHourPaisa: number;
-  slotTimeIso: string;
 }) {
   const [step, setStep] = useState<Step>(1);
   const [duration, setDuration] = useState(60);
@@ -66,8 +47,8 @@ export function BookingFlow({
 
   const [loading, setLoading] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
-  const [order, setOrder] = useState<any>(null);
   const [meetingUrl, setMeetingUrl] = useState<string | null>(null);
+  const [bookingSlotTimeIso, setBookingSlotTimeIso] = useState<string>(new Date(Date.now() + 5 * 60 * 1000).toISOString());
 
   const amountPaise = useMemo(() => Math.floor((ratePerHourPaisa * duration) / 60), [ratePerHourPaisa, duration]);
 
@@ -78,76 +59,29 @@ export function BookingFlow({
       setNotes('');
       setLoading(false);
       setBookingId(null);
-      setOrder(null);
       setMeetingUrl(null);
+      setBookingSlotTimeIso(new Date(Date.now() + 5 * 60 * 1000).toISOString());
     }
   }, [open]);
 
-  const createOrder = async () => {
+  const confirmBooking = async () => {
     try {
       setLoading(true);
       const resp = await api.post('/api/bookings', {
         lawyer_id: lawyerId,
-        slot_time: slotTimeIso,
         duration_mins: duration,
         notes: notes || undefined,
-      });
-      setOrder(resp.data.data.order);
+      }, { timeout: 20000 });
       setBookingId(resp.data.data.booking_id);
-      setStep(3);
-    } catch (err) {
-      const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to create order';
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const openCheckout = async () => {
-    try {
-      if (!order || !bookingId) return;
-      setLoading(true);
-      await loadRazorpay();
-
-      const key = import.meta.env.VITE_RAZORPAY_KEY_ID;
-      if (!key) {
-        toast.error('Missing VITE_RAZORPAY_KEY_ID');
-        return;
+      setMeetingUrl(resp.data?.data?.meeting_url || null);
+      if (resp.data?.data?.slot_time) {
+        setBookingSlotTimeIso(new Date(resp.data.data.slot_time).toISOString());
       }
-
-      const rz = new window.Razorpay({
-        key,
-        amount: order.amount,
-        currency: order.currency,
-        name: 'NextGenLegal',
-        description: 'Consultation booking',
-        order_id: order.id,
-        handler: async (response: any) => {
-          try {
-            const confirmResp = await api.post('/api/bookings/confirm', {
-              booking_id: bookingId,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            });
-            setMeetingUrl(confirmResp.data.data.meeting_url);
-            setStep(4);
-            toast.success('Booking confirmed');
-          } catch (e) {
-            toast.error('Payment confirmed but booking confirmation failed');
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setLoading(false);
-          },
-        },
-        theme: { color: '#4f46e5' },
-      });
-
-      rz.open();
+      setStep(4);
+      toast.success('Booking confirmed');
     } catch (err) {
-      toast.error('Failed to open checkout');
+      const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to confirm booking';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -157,11 +91,11 @@ export function BookingFlow({
     if (!meetingUrl) return null;
     return googleCalendarUrl({
       title: `NextGenLegal Consultation with ${lawyerName}`,
-      startIso: slotTimeIso,
+      startIso: bookingSlotTimeIso,
       durationMins: duration,
       details: `Meeting link: ${meetingUrl}`,
     });
-  }, [meetingUrl, lawyerName, slotTimeIso, duration]);
+  }, [meetingUrl, lawyerName, bookingSlotTimeIso, duration]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -175,7 +109,7 @@ export function BookingFlow({
             <div className="space-y-4">
               <div className="text-sm text-gray-600">
                 <div className="font-semibold text-gray-900">{lawyerName}</div>
-                <div className="mt-1">Slot: {new Date(slotTimeIso).toLocaleString()}</div>
+                <div className="mt-1">Consultation is confirmed instantly after booking.</div>
               </div>
               <div>
                 <Label>Duration</Label>
@@ -213,29 +147,10 @@ export function BookingFlow({
                 <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
                   Back
                 </Button>
-                <Button className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white" onClick={createOrder} disabled={loading}>
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Proceed to pay'}
+                <Button className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white" onClick={confirmBooking} disabled={loading}>
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirm Booking'}
                 </Button>
               </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="space-y-4">
-              <div className="bg-gray-50 border rounded-2xl p-4">
-                <div className="text-sm text-gray-600">Order created</div>
-                <div className="text-xs text-gray-500 mt-1">Complete payment to confirm.</div>
-              </div>
-              <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" onClick={openCheckout} disabled={loading}>
-                {loading ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Opening…
-                  </span>
-                ) : (
-                  'Pay with Razorpay'
-                )}
-              </Button>
             </div>
           )}
 

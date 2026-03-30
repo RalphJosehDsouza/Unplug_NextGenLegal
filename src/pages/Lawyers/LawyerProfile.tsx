@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Star, MapPin, CheckCircle2 } from 'lucide-react';
@@ -36,7 +36,6 @@ export function LawyerProfilePage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [slot, setSlot] = useState<string | null>(null);
   const [flowOpen, setFlowOpen] = useState(false);
 
   const profileQuery = useQuery({
@@ -46,31 +45,10 @@ export function LawyerProfilePage() {
     staleTime: 60 * 1000,
   });
 
-  const slotsQuery = useQuery({
-    queryKey: ['lawyer-slots', id],
-    queryFn: async () => (await api.get(`/api/lawyers/${id}/slots`)).data.data as { slots: string[] },
-    enabled: Boolean(id),
-    staleTime: 30 * 1000,
-  });
-
   const lawyer = profileQuery.data?.lawyer;
   const reviews = profileQuery.data?.reviews || [];
   const avg = profileQuery.data?.avg_rating || 0;
   const count = profileQuery.data?.review_count || 0;
-
-  const slots = slotsQuery.data?.slots || [];
-
-  const slotsByDay = useMemo(() => {
-    const map = new Map<string, string[]>();
-    for (const s of slots) {
-      const d = new Date(s);
-      const key = d.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short' });
-      const arr = map.get(key) || [];
-      arr.push(s);
-      map.set(key, arr);
-    }
-    return Array.from(map.entries()).slice(0, 14);
-  }, [slots]);
 
   if (profileQuery.isLoading) {
     return (
@@ -151,55 +129,13 @@ export function LawyerProfilePage() {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-[1fr_360px] gap-6 mt-6">
+        <div className="mt-6 max-w-md">
           <div className="bg-white border rounded-2xl p-6">
-            <div className="font-bold text-gray-900 mb-2">Available slots (next 14 days)</div>
-            <div className="text-sm text-gray-600 mb-4">Tap a time to select.</div>
-
-            {slotsQuery.isLoading ? (
-              <Skeleton className="h-32 w-full" />
-            ) : slots.length === 0 ? (
-              <div className="text-sm text-gray-600">No slots available.</div>
-            ) : (
-              <div className="space-y-4">
-                {slotsByDay.map(([day, items]) => (
-                  <div key={day}>
-                    <div className="text-sm font-semibold text-gray-900 mb-2">{day}</div>
-                    <div className="flex flex-wrap gap-2">
-                      {items.slice(0, 12).map((t) => {
-                        const d = new Date(t);
-                        const label = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-                        const selected = slot === t;
-                        return (
-                          <button
-                            key={t}
-                            onClick={() => setSlot(t)}
-                            className={`px-3 py-2 rounded-full text-sm border transition-colors ${
-                              selected
-                                ? 'bg-indigo-600 text-white border-indigo-600'
-                                : 'bg-white text-gray-700 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'
-                            }`}
-                          >
-                            {label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="bg-white border rounded-2xl p-6 lg:sticky top-24 h-fit">
             <div className="font-bold text-gray-900">Book & Pay</div>
-            <div className="text-sm text-gray-600 mt-2">
-              Select a slot to continue.
-            </div>
+            <div className="text-sm text-gray-600 mt-2">Continue with the next available consultation slot.</div>
 
             <Button
               className="w-full mt-5 bg-indigo-600 hover:bg-indigo-700 text-white"
-              disabled={!slot}
               onClick={() => setFlowOpen(true)}
             >
               Book Consultation
@@ -230,16 +166,13 @@ export function LawyerProfilePage() {
           )}
         </div>
 
-        {slot ? (
-          <BookingFlow
-            open={flowOpen}
-            onOpenChange={setFlowOpen}
-            lawyerId={lawyer.id}
-            lawyerName={name}
-            ratePerHourPaisa={lawyer.rate_per_hour}
-            slotTimeIso={slot}
-          />
-        ) : null}
+        <BookingFlow
+          open={flowOpen}
+          onOpenChange={setFlowOpen}
+          lawyerId={lawyer.id}
+          lawyerName={name}
+          ratePerHourPaisa={lawyer.rate_per_hour}
+        />
       </div>
     </section>
   );

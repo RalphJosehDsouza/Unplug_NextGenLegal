@@ -103,28 +103,10 @@ async function sendSMS(phone, message) {
 }
 
 async function createDailyRoom({ name, expEpoch }) {
-  const dailyApiKey = process.env.DAILY_API_KEY;
-  if (!dailyApiKey) throw new Error('DAILY_API_KEY is not configured');
-
-  // Use REST directly (Daily API expects `properties.exp`).
-  const resp = await fetch('https://api.daily.co/v1/rooms', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      authorization: `Bearer ${dailyApiKey}`,
-    },
-    body: JSON.stringify({
-      name,
-      privacy: 'private',
-      properties: { exp: expEpoch },
-    }),
-  });
-
-  const data = await resp.json();
-  if (!resp.ok) {
-    throw new Error(`Daily room creation failed: ${data?.message || resp.status}`);
-  }
-  return data;
+  const frontendBase = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const room = encodeURIComponent(String(name || `room-${Date.now()}`));
+  const url = `${frontendBase}/my-bookings?room=${room}&exp=${Number(expEpoch) || 0}`;
+  return { name: room, url };
 }
 
 function verifyRazorpaySignature({ order_id, payment_id, razorpay_signature }) {
@@ -141,20 +123,20 @@ export async function createOrder(req, res, next) {
   try {
     const userId = req.user.id;
     const { lawyer_id, slot_time, duration_mins } = req.body;
+    const effectiveSlotTime = slot_time ? new Date(slot_time) : new Date(Date.now() + 5 * 60 * 1000);
 
-    if (!razorpay) return next({ statusCode: 500, message: 'Razorpay is not configured' });
+    if (Number.isNaN(effectiveSlotTime.getTime())) {
+      return next({ statusCode: 400, message: 'Invalid slot_time' });
+    }
 
     const lawyer = await Lawyer.findByPk(lawyer_id);
     if (!lawyer) return next({ statusCode: 404, message: 'Lawyer not found' });
-    if (lawyer.kyc_status !== 'verified' || !lawyer.bank_account_verified || !lawyer.razorpay_linked_account_id) {
-      return next({ statusCode: 400, message: 'Lawyer is not eligible to receive payments yet' });
-    }
 
     // Ensure slot isn't already booked (non-cancelled).
     const existing = await Booking.findOne({
       where: {
         lawyer_id,
-        slot_time,
+        slot_time: effectiveSlotTime,
         status: { [Op.ne]: 'cancelled' },
       },
     });
@@ -167,51 +149,56 @@ export async function createOrder(req, res, next) {
     const lawyerPaise = amountPaise - commissionPaise;
     
     // Hold transfer for 24 hours post-consultation
-    const slotMs = new Date(slot_time).getTime();
+    const slotMs = effectiveSlotTime.getTime();
     const holdUntilEpoch = Math.floor(slotMs / 1000) + 86400;
 
-    let order;
-    try {
-      order = await razorpay.orders.create({
-        amount: amountPaise,
-        currency: 'INR',
-        receipt: `NGL_${userId}_${Date.now()}`,
-        transfers: [{
-          account: lawyer.razorpay_linked_account_id,
-          amount: lawyerPaise,
-          currency: 'INR',
-          on_hold: 1,
-          on_hold_until: holdUntilEpoch
-        }]
-      });
-    } catch (razorpayErr) {
-      console.error('[bookingController] createOrder Razorpay error:', razorpayErr);
-      return next({ statusCode: 502, message: 'Payment provider error. Please try again.' });
-    }
+    const expEpoch = Math.floor((slotMs + duration * 60 * 1000) / 1000);
+    const daily = await createDailyRoom({
+      name: `NGL-${String(lawyer_id).slice(0, 8)}-${Date.now()}`,
+      expEpoch,
+    });
+    const meetingUrl = daily?.url;
+    if (!meetingUrl) throw new Error('Daily room returned no URL');
 
     const booking = await Booking.create({
       user_id: userId,
       lawyer_id,
-      slot_time: new Date(slot_time),
+      slot_time: effectiveSlotTime,
       duration_mins: duration,
-      status: 'pending',
-      meeting_url: null,
+      status: 'confirmed',
+      meeting_url: meetingUrl,
       payment_id: null,
       amount_paise: amountPaise,
-      razorpay_order_id: order.id,
+      razorpay_order_id: null,
       platform_commission_paise: commissionPaise,
       lawyer_payout_paise: lawyerPaise,
-      payout_status: 'pending'
+      payout_status: 'released'
     });
+
+    const [user, lawyerUser] = await Promise.all([
+      User.findByPk(userId),
+      User.findByPk(lawyer.user_id),
+    ]);
+
+    if (user?.email) {
+      const htmlUser = buildMailTemplate({
+        title: 'Consultation Confirmed',
+        userName: user.full_name || user.email,
+        meetingUrl,
+        lawyerName: lawyerUser?.full_name || 'Lawyer',
+      });
+      sendEmail(user.email, 'NextGenLegal: Your Consultation is Confirmed', htmlUser).catch((mailErr) => {
+        console.error('[bookingController] sendEmail failed:', mailErr?.message || mailErr);
+      });
+    }
 
     return res.json({
       success: true,
       data: {
         booking_id: booking.id,
-        razorpay_order_id: order.id,
-        razorpay_key: process.env.RAZORPAY_KEY_ID,
+        slot_time: booking.slot_time,
+        meeting_url: booking.meeting_url,
         amount_paise: amountPaise,
-        order,
       },
     });
   } catch (err) {
@@ -337,7 +324,7 @@ export async function listMyBookings(req, res, next) {
           model: Lawyer,
           as: 'lawyer',
           include: [{ model: User, as: 'user', attributes: ['full_name', 'email'] }],
-          attributes: ['id', 'rate_per_hour'],
+          attributes: ['id', 'user_id', 'rate_per_hour'],
         },
         { model: Review, as: 'review', required: false, attributes: ['id'] },
       ],
@@ -350,6 +337,7 @@ export async function listMyBookings(req, res, next) {
         bookings: bookings.map((b) => ({
           id: b.id,
           lawyer_id: b.lawyer_id,
+          lawyer_user_id: b.lawyer?.user_id || null,
           lawyer_name: b.lawyer?.user?.full_name || null,
           slot_time: b.slot_time,
           duration_mins: b.duration_mins,

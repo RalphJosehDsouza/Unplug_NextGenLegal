@@ -5,6 +5,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.tsx'
 
+if (typeof globalThis.global === 'undefined') {
+  (globalThis as typeof globalThis & { global: typeof globalThis }).global = globalThis
+}
+
 const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')!).render(

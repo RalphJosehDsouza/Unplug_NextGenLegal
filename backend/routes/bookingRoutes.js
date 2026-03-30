@@ -11,7 +11,7 @@ router.post('/',
   authMiddleware,
   [
     body('lawyer_id').notEmpty().isUUID().withMessage('lawyer_id is required'),
-    body('slot_time').notEmpty().withMessage('slot_time is required'),
+    body('slot_time').optional().isISO8601().withMessage('slot_time must be a valid datetime'),
     body('duration_mins').optional().isInt({ min: 30, max: 180 }).withMessage('duration_mins must be 30..180'),
   ],
   async (req, res, next) => {

@@ -34,6 +34,7 @@ export async function listLawyers(req, res, next) {
       state,
       min_rate,
       max_rate,
+      stars,
       verified_only,
       sort = 'rate_asc',
       page = '1',
@@ -47,6 +48,13 @@ export async function listLawyers(req, res, next) {
 
     const specializationArr = parseCsv(specialization);
     const languageArr = parseCsv(language);
+    const starBuckets = Array.from(
+      new Set(
+        parseCsv(stars)
+          .map((s) => parseIntSafe(s))
+          .filter((n) => Number.isInteger(n) && n >= 1 && n <= 5),
+      ),
+    );
 
     const where = {};
     if (verified) where.verified = true;
@@ -69,19 +77,34 @@ export async function listLawyers(req, res, next) {
     }
 
     const offset = (pageNum - 1) * limitNum;
+    const needsRatingPipeline = String(sort) === 'rating' || starBuckets.length > 0;
 
-    const order =
-      String(sort) === 'rate_desc'
-        ? [['rate_per_hour', 'DESC']]
-        : [['rate_per_hour', 'ASC']];
+    let rows = [];
+    let count = 0;
 
-    const { count, rows } = await Lawyer.findAndCountAll({
-      where,
-      include: [{ model: User, as: 'user', attributes: ['full_name', 'email'] }],
-      order,
-      offset,
-      limit: limitNum,
-    });
+    if (needsRatingPipeline) {
+      rows = await Lawyer.findAll({
+        where,
+        include: [{ model: User, as: 'user', attributes: ['full_name', 'email'] }],
+      });
+      count = rows.length;
+    } else {
+      const order =
+        String(sort) === 'rate_desc'
+          ? [['rate_per_hour', 'DESC']]
+          : [['rate_per_hour', 'ASC']];
+
+      const paged = await Lawyer.findAndCountAll({
+        where,
+        include: [{ model: User, as: 'user', attributes: ['full_name', 'email'] }],
+        order,
+        offset,
+        limit: limitNum,
+      });
+
+      rows = paged.rows;
+      count = paged.count;
+    }
 
     // Add avg rating and review count for each lawyer.
     const lawyerIds = rows.map((r) => r.id);
@@ -90,10 +113,11 @@ export async function listLawyers(req, res, next) {
       const result = await Lawyer.sequelize.query(
         `SELECT b.lawyer_id AS lawyer_id,
                 AVG(r.rating)::float AS avg_rating,
-                COUNT(r.id)::int AS review_count
+                COUNT(r.id)::int AS review_count,
+                ROUND(AVG(r.rating))::int AS rating_bucket
          FROM bookings b
          JOIN reviews r ON r.booking_id = b.id
-         WHERE b.lawyer_id = ANY(:ids)
+         WHERE b.lawyer_id IN (:ids)
          GROUP BY b.lawyer_id`,
         { replacements: { ids: lawyerIds } },
       );
@@ -103,13 +127,14 @@ export async function listLawyers(req, res, next) {
         acc[rec.lawyer_id] = {
           avg_rating: rec.avg_rating ? Number(rec.avg_rating) : 0,
           review_count: rec.review_count ? Number(rec.review_count) : 0,
+          rating_bucket: rec.rating_bucket ? Number(rec.rating_bucket) : 0,
         };
         return acc;
       }, {});
     }
 
     let lawyers = rows.map((l) => {
-      const rating = ratingByLawyer[l.id] || { avg_rating: 0, review_count: 0 };
+      const rating = ratingByLawyer[l.id] || { avg_rating: 0, review_count: 0, rating_bucket: 0 };
       return {
         id: l.id,
         bar_council_id: l.bar_council_id,
@@ -128,19 +153,34 @@ export async function listLawyers(req, res, next) {
         },
         avg_rating: rating.avg_rating,
         review_count: rating.review_count,
+        rating_bucket: rating.rating_bucket,
       };
     });
 
-    if (String(sort) === 'rating') {
-      lawyers = lawyers.sort((a, b) => (b.avg_rating || 0) - (a.avg_rating || 0));
+    if (starBuckets.length > 0) {
+      const starSet = new Set(starBuckets);
+      lawyers = lawyers.filter((l) => l.review_count === 0 || starSet.has(l.rating_bucket));
     }
 
-    const pages = Math.max(Math.ceil(count / limitNum), 1);
+    if (String(sort) === 'rating') {
+      lawyers = lawyers.sort(
+        (a, b) => (b.avg_rating || 0) - (a.avg_rating || 0) || (b.review_count || 0) - (a.review_count || 0),
+      );
+    } else if (needsRatingPipeline && String(sort) === 'rate_desc') {
+      lawyers = lawyers.sort((a, b) => (b.rate_per_hour || 0) - (a.rate_per_hour || 0));
+    } else if (needsRatingPipeline) {
+      lawyers = lawyers.sort((a, b) => (a.rate_per_hour || 0) - (b.rate_per_hour || 0));
+    }
+
+    const total = needsRatingPipeline ? lawyers.length : count;
+    const pagedLawyers = needsRatingPipeline ? lawyers.slice(offset, offset + limitNum) : lawyers;
+
+    const pages = Math.max(Math.ceil(total / limitNum), 1);
     return res.json({
       success: true,
       data: {
-        lawyers,
-        total: count,
+        lawyers: pagedLawyers,
+        total,
         page: pageNum,
         pages,
       },
@@ -371,7 +411,7 @@ export async function registerLawyer(req, res, next) {
       city,
       rate_per_hour: rate_per_hour ? Number(rate_per_hour) : null,
       bio: bio || null,
-      verified: false,
+      verified: true,
       calendly_url: calendly_url || null,
       bar_council_image_s3_key: s3Key,
         working_hours: workingHoursParsed || {},

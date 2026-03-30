@@ -22,6 +22,21 @@ export const registerSchema = [
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
   body('full_name').notEmpty().withMessage('Full name is required'),
   body('phone').optional({ nullable: true }).matches(/^\d{10}$/).withMessage('Phone must be a 10-digit number'),
+  body('role').optional().isIn(['citizen', 'lawyer']).withMessage('Role must be citizen or lawyer'),
+  body('specialization')
+    .if(body('role').equals('lawyer'))
+    .isArray({ min: 1 })
+    .withMessage('At least one specialization is required for lawyers'),
+  body('specialization.*')
+    .if(body('role').equals('lawyer'))
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('Each specialization must be a non-empty string'),
+  body('rate_per_hour')
+    .if(body('role').equals('lawyer'))
+    .isInt({ gt: 0 })
+    .withMessage('rate_per_hour must be a positive integer (paisa)'),
 ];
 
 export const loginSchema = [

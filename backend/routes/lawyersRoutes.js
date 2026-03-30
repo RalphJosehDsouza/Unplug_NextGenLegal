@@ -14,7 +14,7 @@ const memoryUpload = multer({
   limits: { fileSize: 6 * 1024 * 1024 }, // 6MB
 });
 
-// GET /api/lawyers?specialization=...&language=...&state=...&min_rate=...&max_rate=...&verified_only=true&page=1&limit=12
+// GET /api/lawyers?specialization=...&language=...&state=...&min_rate=...&max_rate=...&stars=5,4&verified_only=true&page=1&limit=12
 router.get('/', async (req, res, next) => {
   try {
     return await listLawyers(req, res, next);

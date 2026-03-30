@@ -133,7 +133,7 @@ export async function matchLawyer(req, res, next) {
                 COUNT(r.id)::int AS review_count
          FROM bookings b
          JOIN reviews r ON r.booking_id = b.id
-         WHERE b.lawyer_id = ANY(:ids)
+         WHERE b.lawyer_id IN (:ids)
          GROUP BY b.lawyer_id`,
         { replacements: { ids: lawyerIds } },
       );

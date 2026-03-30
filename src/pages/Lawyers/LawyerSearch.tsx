@@ -83,6 +83,8 @@ function Filters({
   setVerifiedOnly,
   price,
   setPrice,
+  stars,
+  setStars,
 }: {
   specialization: string[];
   setSpecialization: (v: string[]) => void;
@@ -94,6 +96,8 @@ function Filters({
   setVerifiedOnly: (v: boolean) => void;
   price: [number, number]; // rupees
   setPrice: (v: [number, number]) => void;
+  stars: number[];
+  setStars: (v: number[]) => void;
 }) {
   return (
     <div className="space-y-6">
@@ -174,6 +178,30 @@ function Filters({
         />
       </div>
 
+      <div>
+        <div className="font-semibold text-gray-900 mb-3">Stars (user reviews)</div>
+        <div className="space-y-2">
+          {[5, 4, 3, 2, 1].map((star) => {
+            const checked = stars.includes(star);
+            return (
+              <label key={star} className="flex items-center gap-2 text-sm text-gray-700">
+                <Checkbox
+                  checked={checked}
+                  onCheckedChange={(v) => {
+                    const next = Boolean(v)
+                      ? Array.from(new Set([...stars, star])).sort((a, b) => b - a)
+                      : stars.filter((x) => x !== star);
+                    setStars(next);
+                  }}
+                />
+                {star} star
+              </label>
+            );
+          })}
+        </div>
+        <div className="text-xs text-gray-500 mt-2">Unrated lawyers are also shown.</div>
+      </div>
+
       <div className="flex items-center justify-between">
         <div className="font-semibold text-gray-900">Verified only</div>
         <Switch checked={verifiedOnly} onCheckedChange={setVerifiedOnly} />
@@ -190,12 +218,13 @@ export function LawyerSearch() {
   const [state, setState] = useState<string>('__all__');
   const [verifiedOnly, setVerifiedOnly] = useState(true);
   const [price, setPrice] = useState<[number, number]>([0, 5000]); // rupees
+  const [stars, setStars] = useState<number[]>([]);
 
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<'rate_asc' | 'rate_desc' | 'rating'>('rate_asc');
 
   const query = useQuery({
-    queryKey: ['lawyers', specialization, languages, state, verifiedOnly, price, page, sort],
+    queryKey: ['lawyers', specialization, languages, state, verifiedOnly, price, stars, page, sort],
     queryFn: async () => {
       const resp = await api.get('/api/lawyers', {
         params: {
@@ -205,6 +234,7 @@ export function LawyerSearch() {
           verified_only: verifiedOnly,
           min_rate: rupeesToPaisa(price[0]),
           max_rate: rupeesToPaisa(price[1]),
+          stars: stars.join(','),
           page,
           limit: 12,
           sort,
@@ -219,7 +249,7 @@ export function LawyerSearch() {
   const lawyers = data?.lawyers || [];
   const pages = data?.pages || 1;
 
-  const appliedCount = specialization.length + languages.length + (state !== '__all__' ? 1 : 0);
+  const appliedCount = specialization.length + languages.length + stars.length + (state !== '__all__' ? 1 : 0);
 
   const reset = () => {
     setSpecialization([]);
@@ -227,6 +257,7 @@ export function LawyerSearch() {
     setState('__all__');
     setVerifiedOnly(true);
     setPrice([0, 5000]);
+    setStars([]);
     setPage(1);
     setSort('rate_asc');
     toast.success('Filters reset');
@@ -267,6 +298,11 @@ export function LawyerSearch() {
         price={price}
         setPrice={(v) => {
           setPrice(v);
+          setPage(1);
+        }}
+        stars={stars}
+        setStars={(v) => {
+          setStars(v);
           setPage(1);
         }}
       />

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { CalendarClock, ExternalLink, Star, Timer } from 'lucide-react';
+import { CalendarClock, ExternalLink, Star, Timer, Video } from 'lucide-react';
 
 import api from '@/api/axios';
 import { toast } from 'sonner';
@@ -10,16 +10,19 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { CitizenVideoCall } from '@/components/webrtc/CitizenVideoCall';
 
 type BookingRow = {
   id: string;
   lawyer_id: string;
+  lawyer_user_id?: string | null;
   lawyer_name: string | null;
   slot_time: string;
   duration_mins: number;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   meeting_url: string | null;
   reviewed: boolean;
+  call_status?: string;
 };
 
 function countdown(slotIso: string) {
@@ -40,6 +43,7 @@ export function MyBookings() {
   const [reviewBooking, setReviewBooking] = useState<BookingRow | null>(null);
   const [rating, setRating] = useState<number>(5);
   const [comment, setComment] = useState('');
+  const [videoCallBooking, setVideoCallBooking] = useState<BookingRow | null>(null);
 
   const query = useQuery({
     queryKey: ['my-bookings'],
@@ -115,20 +119,26 @@ export function MyBookings() {
                       </Badge>
                     </div>
 
-                    <div className="mt-3 flex items-center justify-between">
+                    <div className="mt-3 flex items-center justify-between gap-3">
                       <div className="text-sm text-gray-700 flex items-center gap-2">
                         <Timer className="w-4 h-4 text-indigo-600" />
                         Starts in <b>{countdown(b.slot_time)}</b>
                       </div>
-                      {b.meeting_url ? (
-                        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => window.open(b.meeting_url!, '_blank')}>
-                          Join Meeting <ExternalLink className="w-4 h-4 ml-2" />
+                      <div className="flex gap-2">
+                        {b.meeting_url ? (
+                          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => window.open(b.meeting_url!, '_blank')}>
+                            Join Meeting <ExternalLink className="w-4 h-4 ml-2" />
+                          </Button>
+                        ) : null}
+                        <Button 
+                          variant="outline" 
+                          className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                          onClick={() => setVideoCallBooking(b)}
+                        >
+                          <Video className="w-4 h-4 mr-2" />
+                          Video Call
                         </Button>
-                      ) : (
-                        <Button variant="outline" disabled>
-                          Awaiting confirmation
-                        </Button>
-                      )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -181,6 +191,16 @@ export function MyBookings() {
           </div>
         </div>
       </div>
+
+      {/* Video call component */}
+      {videoCallBooking && (
+        <CitizenVideoCall 
+          booking_id={videoCallBooking.id} 
+          lawyer_name={videoCallBooking.lawyer_name || 'Lawyer'} 
+          lawyer_id={videoCallBooking.lawyer_user_id || videoCallBooking.lawyer_id}
+          onClose={() => setVideoCallBooking(null)}
+        />
+      )}
 
       <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
         <DialogContent className="sm:max-w-md">

@@ -1,4 +1,4 @@
-import { FileText, Users, Shield, MessageCircle, ArrowRight } from 'lucide-react';
+import { FileText, Users, Shield, MessageCircle, ArrowRight, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { SecureViewer } from '@/features/documents/SecureViewer';
+import { LawyerAlertsTab } from '@/components/webrtc/LawyerAlertsTab';
 
 interface DashboardPageProps {
   user: any;
@@ -148,6 +149,16 @@ export function DashboardPage({ user }: DashboardPageProps) {
             </Link>
           ))}
         </div>
+
+        {isLawyer && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-12">
+            <div className="flex items-center gap-2 mb-6">
+              <Phone className="w-6 h-6 text-blue-600" />
+              <h2 className="text-xl font-bold text-gray-900">Video Call Alerts</h2>
+            </div>
+            <LawyerAlertsTab />
+          </div>
+        )}
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>

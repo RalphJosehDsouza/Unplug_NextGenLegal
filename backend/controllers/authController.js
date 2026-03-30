@@ -35,10 +35,16 @@ function getCookieOptions() {
   };
 }
 
+function getClearCookieOptions() {
+  const { maxAge, ...opts } = getCookieOptions();
+  return opts;
+}
+
 
 export async function register(req, res, next) {
   try {
-    const { email, password, full_name, phone, role } = req.body;
+    const { email, password, full_name, phone, role, specialization, rate_per_hour } = req.body;
+    const normalizedRole = role || 'citizen';
 
     const exists = await User.findOne({ where: { email } });
     if (exists) {
@@ -47,15 +53,43 @@ export async function register(req, res, next) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    const user = await User.create({
-      email,
-      password_hash: passwordHash,
-      full_name,
-      phone: phone || null,
-      role: role || 'citizen',
-      aadhaar_verified: false,
-      preferred_lang: 'en',
-      google_id: null,
+    const user = await User.sequelize.transaction(async (tx) => {
+      const createdUser = await User.create(
+        {
+          email,
+          password_hash: passwordHash,
+          full_name,
+          phone: phone || null,
+          role: normalizedRole,
+          aadhaar_verified: false,
+          preferred_lang: 'en',
+          google_id: null,
+        },
+        { transaction: tx },
+      );
+
+      if (normalizedRole === 'lawyer') {
+        const specializationArr = Array.isArray(specialization)
+          ? specialization.map((s) => String(s).trim()).filter(Boolean)
+          : [];
+
+        await Lawyer.create(
+          {
+            user_id: createdUser.id,
+            bar_council_id: `PENDING-${String(createdUser.id).slice(0, 8)}-${Date.now()}`,
+            specialization: specializationArr,
+            languages: [],
+            state: 'Pending',
+            city: 'Pending',
+            rate_per_hour: Number(rate_per_hour),
+            bio: null,
+            verified: true,
+          },
+          { transaction: tx },
+        );
+      }
+
+      return createdUser;
     });
 
     const accessToken = accessTokenSign(user);
@@ -135,7 +169,7 @@ export async function refresh(req, res, next) {
 
 export async function logout(req, res, next) {
   try {
-    res.clearCookie('refreshToken', getCookieOptions());
+    res.clearCookie('refreshToken', getClearCookieOptions());
     return res.json({ success: true, data: { message: 'Logged out' } });
   } catch (err) {
     return next(err);
