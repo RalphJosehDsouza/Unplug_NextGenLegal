@@ -9,6 +9,13 @@ import {
   generatePDF,
   uploadToS3,
 } from '../services/documentService.js';
+import { razorpay } from '../services/razorpay.js';
+import {
+  getStampDuty,
+  purchaseEStamp,
+  applyEStampToDocument,
+  getDecryptedPdfBufferForDocumentId,
+} from '../services/estampService.js';
 
 function decodeKeyHex(keyHex) {
   return Buffer.from(String(keyHex || ''), 'hex');
@@ -115,6 +122,8 @@ export async function generate(req, res, next) {
       encryption_key: key,
       signed: false,
       signed_at: null,
+      signature_id: null,
+      signed_expired: false,
     });
 
     await logDocumentActivity(req, {
@@ -122,6 +131,46 @@ export async function generate(req, res, next) {
       action: 'document.generated',
       documentId: doc.id,
     });
+
+    // eStamping prep: compute stamp duty for legally enforceable documents.
+    // We do not auto-purchase: we return stamp info so the user can confirm payment.
+    const stampingDocTypes = ['rental_agreement', 'nda', 'partnership_deed', 'affidavit', 'power_of_attorney'];
+    if (stampingDocTypes.includes(doc_type)) {
+      const estampState = String(process.env.ESTAMP_STATE || 'MH').toUpperCase();
+
+      let property_value_paise = 0;
+      if (doc_type === 'rental_agreement') {
+        const monthlyRent = Number(fields?.monthly_rent_figures || 0);
+        const annualRentPaise = monthlyRent * 12 * 100;
+        property_value_paise = Math.round(annualRentPaise);
+      } else if (doc_type === 'partnership_deed') {
+        const c1 = Number(fields?.capital_contribution_1 || 0);
+        const c2 = Number(fields?.capital_contribution_2 || 0);
+        property_value_paise = Math.round((c1 + c2) * 100);
+      }
+
+      const stamp = await getStampDuty(doc_type, estampState, property_value_paise);
+      if (stamp && typeof stamp.stamp_duty_paise === 'number') {
+        await doc.update({
+          estamped: false,
+          stamp_duty_paise: stamp.stamp_duty_paise,
+          stamp_article_number: stamp.article_number,
+          stamp_act_reference: stamp.act_reference,
+          stamp_state: estampState,
+        });
+
+        return res.status(201).json({
+          success: true,
+          data: {
+            doc_id: doc.id,
+            stamp_duty_required: true,
+            stamp_duty_paise: stamp.stamp_duty_paise,
+            article_number: stamp.article_number,
+            act_reference: stamp.act_reference,
+          },
+        });
+      }
+    }
 
     return res.status(201).json({ success: true, data: { doc_id: doc.id } });
   } catch (err) {
@@ -150,6 +199,12 @@ export async function list(req, res, next) {
         'title',
         'signed',
         'signed_at',
+        'signature_id',
+        'signed_expired',
+        'estamped',
+        'estamp_certificate',
+        'stamp_duty_paise',
+        'stamp_state',
         'created_at',
         'source_type',
         'mime_type',
@@ -169,6 +224,12 @@ export async function list(req, res, next) {
           title: d.title,
           signed: d.signed,
           signed_at: d.signed_at,
+          signature_id: d.signature_id,
+          signed_expired: d.signed_expired,
+          estamped: d.estamped,
+          estamp_certificate: d.estamp_certificate,
+          stamp_duty_paise: d.stamp_duty_paise,
+          stamp_state: d.stamp_state,
           created_at: d.created_at,
           source_type: d.source_type,
           mime_type: d.mime_type,
@@ -221,6 +282,8 @@ export async function upload(req, res, next) {
       encryption_key: key,
       signed: false,
       signed_at: null,
+      signature_id: null,
+      signed_expired: false,
     });
 
     await logDocumentActivity(req, {
@@ -230,6 +293,92 @@ export async function upload(req, res, next) {
     });
 
     return res.status(201).json({ success: true, data: { doc_id: doc.id } });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+function verifyRazorpaySignature({ order_id, payment_id, razorpay_signature }) {
+  const secret = process.env.RAZORPAY_KEY_SECRET;
+  if (!secret) throw new Error('RAZORPAY_KEY_SECRET is not configured');
+
+  const body = `${order_id}|${payment_id}`;
+  const expected = crypto.createHmac('sha256', secret).update(body).digest('hex');
+  return expected === razorpay_signature;
+}
+
+export async function purchaseEstamp(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const docId = req.params.id;
+    const { first_party_name, second_party_name, state } = req.body || {};
+
+    const razorpay_order_id = req.body?.razorpay_order_id || null;
+    const razorpay_payment_id = req.body?.razorpay_payment_id || null;
+    const razorpay_signature = req.body?.razorpay_signature || null;
+
+    const doc = await Document.findByPk(docId);
+    if (!doc) return next({ statusCode: 404, message: 'Document not found' });
+    if (doc.user_id !== userId) return next({ statusCode: 403, message: 'Forbidden' });
+    if (doc.estamped) return next({ statusCode: 400, message: 'eStamp already applied' });
+
+    if (!first_party_name || !second_party_name || !state) {
+      return next({ statusCode: 400, message: 'first_party_name, second_party_name, and state are required' });
+    }
+
+    const stampDutyPaise = Number(doc.stamp_duty_paise || 0);
+    if (!stampDutyPaise) {
+      return next({ statusCode: 400, message: 'Stamp duty not calculated for this document yet' });
+    }
+
+    if (!razorpay) {
+      return next({ statusCode: 500, message: 'Payment gateway is not configured' });
+    }
+
+    // If payment ids are not provided, create Razorpay order and return it.
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      const order = await razorpay.orders.create({
+        amount: stampDutyPaise,
+        currency: 'INR',
+        receipt: `ESTAMP_${doc.id}_${Date.now()}`,
+      });
+
+      return res.json({
+        success: true,
+        data: {
+          razorpay_order_id: order.id,
+          razorpay_key: process.env.RAZORPAY_KEY_ID,
+          amount_paise: stampDutyPaise,
+        },
+      });
+    }
+
+    // Verify Razorpay signature before purchasing eStamp.
+    const ok = verifyRazorpaySignature({
+      order_id: razorpay_order_id,
+      payment_id: razorpay_payment_id,
+      razorpay_signature,
+    });
+    if (!ok) return next({ statusCode: 400, message: 'Invalid Razorpay signature' });
+
+    const purchase = await purchaseEStamp(doc.doc_type, state, stampDutyPaise, first_party_name, second_party_name);
+
+    const documentBuffer = await getDecryptedPdfBufferForDocumentId(doc.id);
+    await applyEStampToDocument({ docId: doc.id, documentBuffer, estampPdfBuffer: purchase.pdf_buffer });
+
+    doc.estamped = true;
+    doc.estamp_certificate = purchase.certificate_number;
+    doc.stamp_state = state;
+    doc.viewer_policy = 'download_allowed';
+    await doc.save();
+
+    return res.json({
+      success: true,
+      data: {
+        certificate_number: purchase.certificate_number,
+        message: 'eStamp applied. Document is now legally valid.',
+      },
+    });
   } catch (err) {
     return next(err);
   }

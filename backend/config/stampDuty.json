@@ -1,0 +1,38 @@
+{
+  "MH": {
+    "rental_agreement": {
+      "rate": 0.0025,
+      "min_rupees": 100,
+      "max_rupees": 50000,
+      "article_number": "Article (Rental Agreement - Maharashtra)",
+      "act_reference": "Maharashtra Stamp Act, 1958"
+    },
+    "nda": {
+      "flat_rupees": 100,
+      "article_number": "Article 5, Schedule I",
+      "act_reference": "Maharashtra Stamp Act, 1958"
+    },
+    "partnership_deed": {
+      "rate": 0.01,
+      "max_rupees": 15000,
+      "article_number": "Article (Partnership Deed - Maharashtra)",
+      "act_reference": "Maharashtra Stamp Act, 1958"
+    },
+    "affidavit": {
+      "flat_rupees": 100,
+      "article_number": "Article (Affidavit - Maharashtra)",
+      "act_reference": "Maharashtra Stamp Act, 1958"
+    },
+    "power_of_attorney": {
+      "flat_rupees": 500,
+      "article_number": "Article (Power of Attorney - Maharashtra)",
+      "act_reference": "Maharashtra Stamp Act, 1958"
+    },
+    "employment_contract": {
+      "flat_rupees": 100,
+      "article_number": "Article (Employment Contract - Maharashtra)",
+      "act_reference": "Maharashtra Stamp Act, 1958"
+    }
+  }
+}
+

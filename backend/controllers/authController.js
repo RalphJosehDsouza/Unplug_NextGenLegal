@@ -1,20 +1,18 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-import { Subscription, User } from '../models/index.js';
+import { User, Lawyer } from '../models/index.js';
 
-function accessTokenSign(user, subscription) {
+function accessTokenSign(user) {
   return jwt.sign(
     {
       id: user.id,
       role: user.role,
-      plan: subscription?.plan || 'freemium',
     },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' },
   );
 }
-
 function refreshTokenSign(user) {
   return jwt.sign(
     {
@@ -37,18 +35,6 @@ function getCookieOptions() {
   };
 }
 
-async function getOrCreateSubscription(userId) {
-  const existing = await Subscription.findOne({ where: { user_id: userId } });
-  if (existing) return existing;
-
-  return Subscription.create({
-    user_id: userId,
-    plan: 'freemium',
-    active: true,
-    starts_at: new Date(),
-    expires_at: null,
-  });
-}
 
 export async function register(req, res, next) {
   try {
@@ -72,15 +58,7 @@ export async function register(req, res, next) {
       google_id: null,
     });
 
-    const subscription = await Subscription.create({
-      user_id: user.id,
-      plan: 'freemium',
-      active: true,
-      starts_at: new Date(),
-      expires_at: null,
-    });
-
-    const accessToken = accessTokenSign(user, subscription);
+    const accessToken = accessTokenSign(user);
     const refreshToken = refreshTokenSign(user);
 
     res.cookie('refreshToken', refreshToken, getCookieOptions());
@@ -94,7 +72,6 @@ export async function register(req, res, next) {
           email: user.email,
           role: user.role,
           full_name: user.full_name,
-          plan: subscription.plan,
         },
       },
     });
@@ -114,9 +91,7 @@ export async function login(req, res, next) {
     const ok = await bcrypt.compare(password, user.password_hash);
     if (!ok) return next({ statusCode: 401, message: 'Invalid credentials' });
 
-    const subscription = await getOrCreateSubscription(user.id);
-
-    const accessToken = accessTokenSign(user, subscription);
+    const accessToken = accessTokenSign(user);
     const refreshToken = refreshTokenSign(user);
     res.cookie('refreshToken', refreshToken, getCookieOptions());
 
@@ -129,7 +104,6 @@ export async function login(req, res, next) {
           email: user.email,
           role: user.role,
           full_name: user.full_name,
-          plan: subscription.plan,
         },
       },
     });
@@ -151,8 +125,7 @@ export async function refresh(req, res, next) {
     const user = await User.findByPk(payload.id);
     if (!user) return next({ statusCode: 401, message: 'User not found' });
 
-    const subscription = await getOrCreateSubscription(user.id);
-    const accessToken = accessTokenSign(user, subscription);
+    const accessToken = accessTokenSign(user);
 
     return res.json({ success: true, data: { accessToken } });
   } catch (err) {
@@ -175,10 +148,23 @@ export async function me(req, res, next) {
     if (!userId) return next({ statusCode: 401, message: 'Unauthorized' });
 
     const user = await User.findByPk(userId, {
-      include: [{ model: Subscription, as: 'subscription' }],
+      include: [
+        { model: Lawyer, as: 'lawyer' }
+      ]
     });
 
     if (!user) return next({ statusCode: 401, message: 'User not found' });
+
+    let lawyerProfile = undefined;
+    if (user.role === 'lawyer' && user.lawyer) {
+      lawyerProfile = {
+        kyc_status: user.lawyer.kyc_status,
+        payout_balance_paise: user.lawyer.payout_balance_paise,
+        total_earned_paise: user.lawyer.total_earned_paise,
+        bank_account_verified: user.lawyer.bank_account_verified,
+        commission_rate: user.lawyer.commission_rate
+      };
+    }
 
     return res.json({
       success: true,
@@ -187,7 +173,7 @@ export async function me(req, res, next) {
         email: user.email,
         role: user.role,
         full_name: user.full_name,
-        plan: user.subscription?.plan || req.user.plan || 'freemium',
+        ...(lawyerProfile && { lawyer: lawyerProfile })
       },
     });
   } catch (err) {

@@ -5,7 +5,7 @@ if (!databaseUrl) {
   throw new Error('DATABASE_URL is required');
 }
 
-module.exports = {
+const config = {
   url: databaseUrl,
   dialect: 'postgres',
   logging: false,
@@ -18,5 +18,11 @@ module.exports = {
     freezeTableName: true,
   },
   timezone: '+05:30',
+};
+
+module.exports = {
+  development: config,
+  test: config,
+  production: config,
 };
 

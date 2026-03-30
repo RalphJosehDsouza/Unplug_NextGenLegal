@@ -5,6 +5,7 @@ import multer from 'multer';
 import authMiddleware from '../middleware/authMiddleware.js';
 
 import { listLawyers, getLawyerProfile, getLawyerSlots, registerLawyer } from '../controllers/lawyerController.js';
+import { matchLawyer } from '../controllers/lawyerMatchController.js';
 
 const router = Router();
 
@@ -17,6 +18,15 @@ const memoryUpload = multer({
 router.get('/', async (req, res, next) => {
   try {
     return await listLawyers(req, res, next);
+  } catch (err) {
+    return next(err);
+  }
+});
+
+// POST /api/lawyers/match
+router.post('/match', authMiddleware, async (req, res, next) => {
+  try {
+    return await matchLawyer(req, res, next);
   } catch (err) {
     return next(err);
   }

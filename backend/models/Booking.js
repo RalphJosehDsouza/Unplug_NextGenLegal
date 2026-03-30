@@ -48,6 +48,50 @@ export const Booking = sequelize.define(
       allowNull: false,
       defaultValue: 0,
     },
+    razorpay_order_id: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    razorpay_payment_id: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    razorpay_transfer_id: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    platform_commission_paise: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    lawyer_payout_paise: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    payout_status: {
+      type: DataTypes.ENUM('pending', 'in_escrow', 'released', 'refunded', 'disputed'),
+      defaultValue: 'pending',
+    },
+    consultation_confirmed_client: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    consultation_confirmed_lawyer: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    confirmed_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    disputed_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    dispute_reason: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,

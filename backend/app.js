@@ -14,8 +14,19 @@ import bookingRoutes from './routes/bookingRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import activityRoutes from './routes/activityRoutes.js';
 import courtHouseRoutes from './routes/courtHouseRoutes.js';
+import kycRoutes from './routes/kycRoutes.js';
+import payoutRoutes from './routes/payoutRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import esignRoutes from './routes/esignRoutes.js';
+import legalNoticeRoutes from './routes/legalNoticeRoutes.js';
+import ecourtsRoutes from './routes/ecourtsRoutes.js';
+import rtiRoutes from './routes/rtiRoutes.js';
+import womensHelpRoutes from './routes/womensHelpRoutes.js';
+import docReviewRoutes from './routes/docReviewRoutes.js';
 import { startComplianceAlertsCron } from './cron/complianceAlerts.js';
 import { startCourtHearingAlertsCron } from './cron/courtHearingAlerts.js';
+import { startPayoutReleaseCron } from './cron/payoutRelease.js';
+import { startEcourtsTrackerCron } from './cron/ecourtsTracker.js';
 
 import errorHandler from './middleware/errorHandler.js';
 import passport from 'passport';
@@ -93,10 +104,21 @@ app.use('/api/notifications', apiLimiter, notificationRoutes);
 app.use('/api/chat', chatLimiter, chatRoutes);
 app.use('/api/activity', apiLimiter, activityRoutes);
 app.use('/api/courthouse', apiLimiter, courtHouseRoutes);
+app.use('/api/kyc', apiLimiter, kycRoutes);
+app.use('/api/payouts', apiLimiter, payoutRoutes);
+app.use('/api/admin', apiLimiter, adminRoutes);
+app.use('/api', esignRoutes);
+app.use('/api/legal-notice', apiLimiter, legalNoticeRoutes);
+app.use('/api/ecourts', apiLimiter, ecourtsRoutes);
+app.use('/api/rti', apiLimiter, rtiRoutes);
+app.use('/api/womens-help', apiLimiter, womensHelpRoutes);
+app.use('/api/doc-review', apiLimiter, docReviewRoutes);
 
 // Start background schedulers
 startComplianceAlertsCron();
 startCourtHearingAlertsCron();
+startPayoutReleaseCron();
+startEcourtsTrackerCron();
 
 // 404 -> centralized error handler
 app.use((req, res, next) => {

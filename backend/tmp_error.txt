@@ -1,0 +1,10 @@
+
+[4mSequelize CLI [Node: 24.13.0, CLI: 6.6.5, ORM: 6.37.8][24m
+
+[dotenv@17.3.1] injecting env (25) from .env -- tip: ⚙️  override existing env vars with { override: true }
+Loaded configuration file "sequelize.config.cjs".
+Using environment "development".
+
+
+
+[31mERROR:[39m database "unplug" does not exist

@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { font-family: Arial, sans-serif; color: #111; }
+      .wrap { padding: 24px; }
+      .header {
+        text-align: center;
+        border: 2px solid #4f46e5;
+        border-radius: 12px;
+        padding: 16px 18px;
+      }
+      .title {
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+      }
+      .subtitle {
+        margin-top: 6px;
+        font-size: 14px;
+        color: #4b5563;
+      }
+      .meta {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .meta .box { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; }
+      .meta b { display:block; margin-bottom: 4px; }
+      .body { margin-top: 18px; line-height: 1.6; font-size: 14px; }
+      .body p { margin: 0 0 12px 0; }
+      .numbered { margin-left: 18px; }
+      .closing { margin-top: 26px; }
+      .sign { margin-top: 24px; display:flex; gap: 24px; }
+      .sign .col { flex: 1; }
+      .sign .label { font-size: 12px; color: #6b7280; margin-bottom: 6px; }
+      .footer { margin-top: 26px; font-size: 12px; color: #6b7280; }
+      .hr { height:1px; background:#e5e7eb; margin: 18px 0; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="header">
+        <div class="title">LEGAL NOTICE</div>
+        <div class="subtitle">Sent via registered post and email</div>
+      </div>
+
+      <div class="meta">
+        <div class="box">
+          <b>Date</b>
+          {{date}}
+        </div>
+        <div class="box">
+          <b>City</b>
+          {{city}}
+        </div>
+      </div>
+
+      <div class="body">
+        <p><b>To,</b><br/>
+          {{recipient_name}}<br/>
+          {{recipient_address}}
+        </p>
+
+        <div class="hr"></div>
+
+        <p><b>Subject:</b> {{subject}}</p>
+
+        <p>{{opening_text}}</p>
+
+        <p>Facts and circumstances:</p>
+        <p>{{facts_and_circumstances}}</p>
+
+        <p><b>Relief sought:</b> {{relief_sought}}</p>
+
+        <p>
+          You are hereby called upon to respond within <b>{{response_deadline_days}}</b> days from the date of this notice
+          failing which necessary legal action may be initiated.
+        </p>
+
+        <div class="closing">
+          <p>Yours faithfully,</p>
+          <div class="sign">
+            <div class="col">
+              <div class="label">Sender</div>
+              <div style="font-weight:700;">{{sender_name}}</div>
+              <div style="color:#111; margin-top:6px;">{{sender_address}}</div>
+            </div>
+            {{#if sender_advocate_name}}
+            <div class="col">
+              <div class="label">Advocate</div>
+              <div style="font-weight:700;">{{sender_advocate_name}}</div>
+            </div>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        This notice is issued for information and legal communication purposes and should not be construed as legal advice.
+      </div>
+    </div>
+  </body>
+</html>
+

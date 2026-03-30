@@ -9,6 +9,9 @@ const docTypes = [
   'employment_contract',
   'affidavit',
   'power_of_attorney',
+  'legal_notice',
+  'rti_application',
+  'pwdva_application',
   'uploaded_pdf',
 ];
 
@@ -76,6 +79,40 @@ export const Document = sequelize.define(
     },
     signed_at: {
       type: DataTypes.DATE,
+      allowNull: true,
+    },
+    signature_id: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    signed_expired: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    estamped: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    estamp_certificate: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    stamp_duty_paise: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    stamp_article_number: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    stamp_act_reference: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    stamp_state: {
+      type: DataTypes.STRING(10),
       allowNull: true,
     },
     created_at: {

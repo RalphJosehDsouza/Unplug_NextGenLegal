@@ -3,7 +3,6 @@ import { sequelize } from '../config/db.js';
 import { User } from './User.js';
 import { Lawyer } from './Lawyer.js';
 import { Document } from './Document.js';
-import { Subscription } from './Subscription.js';
 import { Booking } from './Booking.js';
 import { ComplianceTask } from './ComplianceTask.js';
 import { ActivityLog } from './ActivityLog.js';
@@ -13,13 +12,13 @@ import { CaseType } from './CaseType.js';
 import { CaseTypeRequiredDocument } from './CaseTypeRequiredDocument.js';
 import { CourtHearing } from './CourtHearing.js';
 import { CourtHearingDocument } from './CourtHearingDocument.js';
+import { LegalNoticeTracking } from './LegalNoticeTracking.js';
+import { TrackedCase } from './TrackedCase.js';
+import { DocReview } from './DocReview.js';
 
 // Associations
 User.hasMany(Document, { foreignKey: 'user_id', as: 'documents' });
 Document.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
-
-User.hasOne(Subscription, { foreignKey: 'user_id', as: 'subscription' });
-Subscription.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 User.hasOne(Lawyer, { foreignKey: 'user_id', as: 'lawyer' });
 Lawyer.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
@@ -38,6 +37,9 @@ ActivityLog.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 Document.hasMany(ActivityLog, { foreignKey: 'resource_id', as: 'activityLogs', constraints: false });
 ActivityLog.belongsTo(Document, { foreignKey: 'resource_id', as: 'document', constraints: false });
+
+Booking.hasMany(ActivityLog, { foreignKey: 'resource_id', as: 'activityLogs', constraints: false });
+ActivityLog.belongsTo(Booking, { foreignKey: 'resource_id', as: 'booking', constraints: false });
 
 User.hasMany(Notification, { foreignKey: 'user_id', as: 'notifications' });
 Notification.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
@@ -77,12 +79,19 @@ CourtHearingDocument.belongsTo(CaseTypeRequiredDocument, {
 Document.hasMany(CourtHearingDocument, { foreignKey: 'document_id', as: 'courtHearingLinks' });
 CourtHearingDocument.belongsTo(Document, { foreignKey: 'document_id', as: 'document' });
 
+// Legal notice tracking relations
+Document.hasMany(LegalNoticeTracking, { foreignKey: 'document_id', as: 'legalNoticeTrackings' });
+LegalNoticeTracking.belongsTo(Document, { foreignKey: 'document_id', as: 'document' });
+
+// eCourts case tracking relations
+User.hasMany(TrackedCase, { foreignKey: 'user_id', as: 'trackedCases' });
+TrackedCase.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
 export {
   sequelize,
   User,
   Lawyer,
   Document,
-  Subscription,
   Booking,
   ComplianceTask,
   ActivityLog,
@@ -92,5 +101,8 @@ export {
   CaseTypeRequiredDocument,
   CourtHearing,
   CourtHearingDocument,
+  LegalNoticeTracking,
+  TrackedCase,
+  DocReview,
 };
 

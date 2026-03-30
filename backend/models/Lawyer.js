@@ -66,6 +66,38 @@ export const Lawyer = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    razorpay_linked_account_id: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    razorpay_fund_account_id: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    razorpay_stakeholder_id: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    bank_account_verified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    payout_balance_paise: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    commission_rate: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0.05,
+    },
+    total_earned_paise: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    kyc_status: {
+      type: DataTypes.ENUM('pending', 'submitted', 'verified', 'rejected'),
+      defaultValue: 'pending',
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,

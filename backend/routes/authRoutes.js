@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 // Ensure the Google strategy is registered.
 import passport from '../config/passport.js';
 
-import { Subscription } from '../models/index.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 
 import {
@@ -92,16 +91,8 @@ router.get(
       const user = req.user;
       if (!user) return next({ statusCode: 401, message: 'Google authentication failed' });
 
-      const subscription = await Subscription.findOne({ where: { user_id: user.id } }) || (await Subscription.create({
-        user_id: user.id,
-        plan: 'freemium',
-        active: true,
-        starts_at: new Date(),
-        expires_at: null,
-      }));
-
       const accessToken = jwt.sign(
-        { id: user.id, role: user.role, plan: subscription.plan },
+        { id: user.id, role: user.role },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' },
       );

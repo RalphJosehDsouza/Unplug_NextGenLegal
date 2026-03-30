@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { font-family: Arial, sans-serif; color: #111; }
+      .wrap { padding: 24px; }
+      .header {
+        text-align: center;
+        border: 2px solid #4f46e5;
+        border-radius: 14px;
+        padding: 16px 18px;
+      }
+      .title {
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: 0.4px;
+      }
+      .subtitle { margin-top: 6px; font-size: 13px; color: #4b5563; }
+      .meta {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .meta .box { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; }
+      .meta b { display:block; margin-bottom: 4px; }
+      .letter {
+        margin-top: 18px;
+        line-height: 1.6;
+        font-size: 14px;
+      }
+      .letter .toTitle { font-weight: 800; letter-spacing: 0.2px; text-transform: uppercase; margin-bottom: 10px; }
+      .hr { height: 1px; background: #e5e7eb; margin: 18px 0; }
+      .pre { white-space: pre-wrap; }
+      .sign { margin-top: 26px; display:flex; gap: 24px; }
+      .sign .col { flex: 1; }
+      .sign .label { font-size: 12px; color: #6b7280; margin-bottom: 6px; }
+      .footer { margin-top: 26px; font-size: 12px; color: #6b7280; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="header">
+        <div class="title">RIGHT TO INFORMATION (RTI)</div>
+        <div class="subtitle">Application under RTI Act, 2005</div>
+      </div>
+
+      <div class="meta">
+        <div class="box">
+          <b>Date</b>
+          {{date}}
+        </div>
+        <div class="box">
+          <b>State</b>
+          {{state}}
+        </div>
+      </div>
+
+      <div class="letter">
+        <div class="toTitle">TO THE PUBLIC INFORMATION OFFICER</div>
+
+        <p>
+          <b>Name:</b> {{pio_name}}<br/>
+          <b>Designation:</b> {{pio_designation}}<br/>
+          <b>Department:</b> {{department}}<br/>
+          <b>Address:</b> {{department_address}}
+        </p>
+
+        <div class="hr"></div>
+
+        <p>
+          <b>Applicant:</b> {{applicant_name}}<br/>
+          <b>Address:</b> {{applicant_address}}<br/>
+          <b>Phone:</b> {{applicant_phone}}<br/>
+          <b>Email:</b> {{applicant_email}}
+        </p>
+
+        <div class="hr"></div>
+
+        <p><b>Information Sought:</b></p>
+        <div class="pre">{{{information_sought_text}}}</div>
+
+        <div class="hr"></div>
+
+        <p>
+          <b>Fee Details:</b> {{fee_details}}
+        </p>
+
+        <p style="margin-top: 10px;">
+          {{#if bpl_exempt}}
+            I am a BPL cardholder and claim exemption for the RTI application fee.
+          {{/if}}
+        </p>
+
+        <div class="sign">
+          <div class="col">
+            <div class="label">Yours faithfully</div>
+            <div style="font-weight:700;">{{applicant_name}}</div>
+          </div>
+          <div class="col">
+            <div class="label">Signature</div>
+            <div style="margin-top: 28px; border-bottom: 1px solid #111; height: 34px;"></div>
+          </div>
+        </div>
+
+        <div class="footer">
+          This application is generated for convenience and should be reviewed before submission.
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+

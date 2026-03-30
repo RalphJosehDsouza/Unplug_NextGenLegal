@@ -92,6 +92,17 @@ export async function uploadToS3(userId, encryptedBuffer, filename) {
   return s3Key;
 }
 
+export async function uploadToS3AtKey(s3Key, encryptedBuffer) {
+  const cmd = new PutObjectCommand({
+    Bucket: process.env.S3_BUCKET,
+    Key: s3Key,
+    Body: encryptedBuffer,
+    ContentType: 'application/octet-stream',
+  });
+
+  await s3.send(cmd);
+}
+
 export async function generatePresignedUrl(s3Key) {
   const cmd = new GetObjectCommand({
     Bucket: process.env.S3_BUCKET,
@@ -100,6 +111,11 @@ export async function generatePresignedUrl(s3Key) {
 
   // 900 seconds expiry
   return getSignedUrl(s3, cmd, { expiresIn: 900 });
+}
+
+// Alias kept for integration parity with other modules.
+export async function getPresignedUrl(s3Key) {
+  return generatePresignedUrl(s3Key);
 }
 
 async function streamToBuffer(stream) {
