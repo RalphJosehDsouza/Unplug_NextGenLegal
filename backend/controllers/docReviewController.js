@@ -100,9 +100,15 @@ export async function analyzeDocReview(req, res, next) {
     if (file.mimetype !== 'application/pdf') return next({ statusCode: 400, message: 'Only PDF is allowed' });
 
     // 1) Extract text from PDF.
-    const parsed = await pdfParse(file.buffer);
+    let parsed;
+    try {
+      parsed = await pdfParse(file.buffer);
+    } catch (parseErr) {
+      console.error('[DocReview] PDF Parse Error:', parseErr);
+      return next({ statusCode: 400, message: 'Invalid or corrupt PDF file. Could not extract text.' });
+    }
     const fullText = String(parsed?.text || '');
-    if (!fullText.trim()) return next({ statusCode: 400, message: 'Could not extract text from PDF' });
+    if (!fullText.trim()) return next({ statusCode: 400, message: 'Could not extract any readable text from PDF' });
 
     const textForGemini = truncateToFirstNWords(fullText, 6000);
     const cacheHash = sha256(fullText.slice(0, 500));
@@ -173,7 +179,12 @@ export async function analyzeDocReview(req, res, next) {
     // 7) Return.
     return res.json({ success: true, data: normalizedAnalysis, cached: false });
   } catch (err) {
-    return next(err);
+    console.error('[DocReview Error]:', err);
+    if (!err.statusCode) {
+      err.statusCode = 500;
+      err.message = err.message || 'Internal Server Error';
+    }
+    return res.status(err.statusCode).json({ success: false, message: err.message, error: err.message });
   }
 }
 

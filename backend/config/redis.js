@@ -22,8 +22,12 @@ export const redis = new Redis(redisUrl, {
 });
 
 export async function connectRedis() {
-  if (redis.status === 'ready') return redis;
-  await redis.connect();
+  if (redis.status === 'ready' || redis.status === 'connecting') return redis;
+  try {
+    await redis.connect();
+  } catch (err) {
+    if (!err?.message?.includes('already connecting')) throw err;
+  }
   return redis;
 }
 

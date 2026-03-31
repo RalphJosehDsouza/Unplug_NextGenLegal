@@ -11,11 +11,38 @@ export function ContractAuditPage() {
   const [result, setResult] = useState<any>(null);
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
 
-  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+      toast.info('Extracting text from PDF (this might take a moment)...');
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfjsLib = await import('pdfjs-dist');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.mjs`;
+
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let fullText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          // @ts-ignore
+          const pageText = content.items.map((item) => item.str).join(' ');
+          fullText += pageText + '\n\n';
+        }
+
+        if (!fullText.trim()) throw new Error('No text found in PDF');
+        setContractText(fullText.trim());
+        toast.success('PDF text extracted successfully.');
+      } catch (err) {
+        toast.error('Could not extract text from PDF. Ensure it is a text-based PDF.');
+      }
+      return;
+    }
+
     if (file.type !== 'text/plain' && !file.name.endsWith('.txt')) {
-      toast.error('Please upload a text (.txt) file with your contract content');
+      toast.error('Please upload a PDF (.pdf) or text (.txt) file with your contract content');
       return;
     }
     const reader = new FileReader();
@@ -58,8 +85,8 @@ export function ContractAuditPage() {
             {/* Upload Zone */}
             <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-red-400 hover:bg-red-50/30 transition-all">
               <Upload className="w-8 h-8 text-gray-400 mb-2" />
-              <span className="text-sm text-gray-500">Drop a .txt file or click to upload</span>
-              <input type="file" className="hidden" accept=".txt" onChange={handleFileUpload} />
+              <span className="text-sm text-gray-500">Drop a .pdf or .txt file or click to upload</span>
+              <input type="file" className="hidden" accept=".txt,.pdf" onChange={handleFileUpload} />
             </label>
 
             <div className="relative">

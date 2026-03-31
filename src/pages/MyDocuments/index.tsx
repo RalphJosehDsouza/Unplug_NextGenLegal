@@ -139,6 +139,16 @@ export function MyDocuments() {
     const state = location.state as unknown as { docId?: string } | undefined;
     if (state?.docId) {
       toast.success('Your document is ready to download.');
+      // Force refetch because React Query cache might be stale after generating
+      query.refetch().then((res) => {
+        // Auto-open if possible
+        const newDoc = res.data?.find((d: any) => d.id === state.docId);
+        if (newDoc) {
+          handleOpenViewer(newDoc);
+        }
+      });
+      // Clear the state so it doesn't trigger again on refresh
+      window.history.replaceState({}, document.title);
     }
   }, [location.state]);
 
