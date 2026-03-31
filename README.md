@@ -1,42 +1,36 @@
-# NextGenLegal (Legal Tech) - Frontend + Backend Starter
+# NextGenLegal (Legal Tech) - Full-Stack Application
 
-This repo contains a React + TailwindCSS (ShadCN UI) frontend and an Express + Sequelize + PostgreSQL backend for the NextGenLegal platform.
+This repository contains the NextGenLegal platform: a React + TailwindCSS (ShadCN UI) frontend and an Express + Sequelize + PostgreSQL backend. 
+
+The platform provides a comprehensive suite of digital legal tools, bridging the gap between everyday citizens, businesses, and legal professionals in India.
+
+## Core Features & Offerings
+- **Document Studio**: 17+ customizable document templates covering Business, Real Estate, Family, and Employment law. Generated instantly via Handlebars + Puppeteer.
+- **Lawyer Booking & WebRTC**: A fully-fledged directory of verified lawyers. Includes availability slots, automated Escrow Razorpay payouts, and a built-in WebRTC video consultation suite for seamless citizen-lawyer meetings.
+- **AI-Powered Legal Tools**:
+  - **Contract Audit**: Instantly upload contracts for AI analysis of risk, compliance, and hidden clauses.
+  - **Law Mapper**: Map your problem to relevant sections of Indian Law (BNS, BSA) powered by AI.
+  - **RTI Assistant**: Generate comprehensive Right To Information (RTI) applications instantly.
+  - **Business Name Generator**: Get available, legally viable, and catchy business names using AI.
+- **Business Formation & Compliance**:
+  - **Company Registration**: Step-by-step Private Limited / LLP registration with DIN/DSC routing.
+  - **Trademark Filing**: Trademark application processing and conflict checks.
+  - **Registered Agent**: Automated virtual office and compliance agent subscriptions.
+- **Enterprise Solutions**: High-volume legal workflows, bulk e-signing, and dedicated account management for large businesses.
+- **Subscriptions**: 3 distinct tiers (Starter, Professional, Business) that unlock advanced tools, higher API limits, and prioritized lawyer bookings.
 
 ## Tech Stack
-- Node.js + Express (API server)
-- Sequelize ORM + PostgreSQL 15
-- Redis (ioredis) for rate limiting + caching
-- JWT auth (access token) + httpOnly refresh cookie
-- AWS S3 (SDK v3) for secure document storage
-- Puppeteer + Handlebars for server-side document generation
-- Gemini (server-side chatbot) + ActivityLog persistence
-- Compliance monitoring + cron notifications (email/SMS/WhatsApp + in-app notifications)
+- **Frontend**: React (Vite), TailwindCSS, ShadCN UI, Zustand, Daily.co (Video Calls), Socket.io-client.
+- **Backend**: Node.js + Express
+- **Database**: PostgreSQL 15 (managed via Sequelize ORM)
+- **Caching**: Redis (ioredis) for fast responses and rate-limiting
+- **File Storage**: AWS S3 (SDK v3) for secure document and contract storage
+- **Payments**: Razorpay (Orders, Escrow Route, Webhooks)
+- **AI Integrations**: Gemini / Google AI Studio for semantic analysis
+- **Notifications**: SMTP Emails, MSG91 SMS, and realtime WebSocket in-app alerts.
 
-## Key Frontend Routes
-- `/documents` -> Document Studio (template library)
-- `/doc-studio/generate/:template_name` -> document generator form + live preview
-- `/my-documents` -> secure document download list
-- `/lawyers` -> lawyer directory search + pagination
-- `/lawyers/:id` -> lawyer profile + slot picker + booking flow
-- `/my-bookings` -> upcoming/past bookings + reviews
-- `/compliance` -> compliance Kanban + add/edit tasks + notification bell
+## Infrastructure
+Backend env template is available in `backend/.env.example`.
+Start the backend dependencies quickly using `docker compose up -d` to spin up PostgreSQL and Redis locally.
 
-## Key Backend Routes
-- Auth: `/api/auth/*`
-- Documents: `/api/docs/*`
-- Lawyers: `/api/lawyers*`
-- Bookings: `/api/bookings*`
-- Reviews: `/api/bookings/:id/review`
-- Compliance: `/api/compliance*`
-- Notifications: `/api/notifications*`
-- Chatbot: `/api/chat`
-
-## Configuration
-Backend env template: `app/backend/.env.example`
-Docker services: `app/docker-compose.yml`
-
-## Notes
-Some integrations (Razorpay, Daily.co, MSG91, SMTP, S3, Gemini) require you to set the corresponding env vars before running those flows.
-
-Implementation inventory: `app/docs/NEXTGENLEGAL_IMPLEMENTED.md`.
-
+Ensure you configure all relevant Environment variables (Razorpay, S3, Gemini, SMTP, Msg91) before running the application.
