@@ -15,6 +15,10 @@ import { CourtHearingDocument } from './CourtHearingDocument.js';
 import { LegalNoticeTracking } from './LegalNoticeTracking.js';
 import { TrackedCase } from './TrackedCase.js';
 import { DocReview } from './DocReview.js';
+import { BusinessRegistration } from './BusinessRegistration.js';
+import { TrademarkApplication } from './TrademarkApplication.js';
+import { RegisteredAgent } from './RegisteredAgent.js';
+import { EnterpriseLead } from './EnterpriseLead.js';
 
 // Associations
 User.hasMany(Document, { foreignKey: 'user_id', as: 'documents' });
@@ -87,6 +91,18 @@ LegalNoticeTracking.belongsTo(Document, { foreignKey: 'document_id', as: 'docume
 User.hasMany(TrackedCase, { foreignKey: 'user_id', as: 'trackedCases' });
 TrackedCase.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
+// Business registration relations
+User.hasMany(BusinessRegistration, { foreignKey: 'user_id', as: 'businessRegistrations' });
+BusinessRegistration.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
+// Trademark relations
+User.hasMany(TrademarkApplication, { foreignKey: 'user_id', as: 'trademarkApplications' });
+TrademarkApplication.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
+// Registered agent relations
+User.hasMany(RegisteredAgent, { foreignKey: 'user_id', as: 'registeredAgents' });
+RegisteredAgent.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
 export {
   sequelize,
   User,
@@ -104,5 +120,8 @@ export {
   LegalNoticeTracking,
   TrackedCase,
   DocReview,
+  BusinessRegistration,
+  TrademarkApplication,
+  RegisteredAgent,
+  EnterpriseLead,
 };
-

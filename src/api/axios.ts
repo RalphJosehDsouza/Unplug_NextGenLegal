@@ -27,10 +27,13 @@ api.interceptors.response.use(
     const status = error?.response?.status;
     const originalConfig = error?.config as RetriableConfig | undefined;
 
-    const isRefreshRequest =
-      typeof originalConfig?.url === 'string' && originalConfig.url.includes('/api/auth/refresh');
+    const isAuthEndpoint =
+      typeof originalConfig?.url === 'string' && 
+      (originalConfig.url.includes('/api/auth/refresh') ||
+       originalConfig.url.includes('/api/auth/login') ||
+       originalConfig.url.includes('/api/auth/register'));
 
-    if (status === 401 && originalConfig && !originalConfig._retry && !isRefreshRequest) {
+    if (status === 401 && originalConfig && !originalConfig._retry && !isAuthEndpoint) {
       originalConfig._retry = true;
       try {
         const refreshResponse = await api.post('/api/auth/refresh');

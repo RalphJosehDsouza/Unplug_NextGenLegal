@@ -113,7 +113,7 @@ export function ChatBot() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg shadow-indigo-600/30 flex items-center justify-center transition-all hover:scale-110 z-50"
+          className="fixed bottom-6 right-6 w-14 h-14 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg shadow-red-600/30 flex items-center justify-center transition-all hover:scale-110 z-50"
           aria-label="Open AI legal assistant"
         >
           <MessageCircle className="w-6 h-6" />
@@ -125,14 +125,14 @@ export function ChatBot() {
           className="fixed bottom-6 right-6 w-[380px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-2rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50 flex flex-col"
           style={{ animation: 'ngl-slideUp 180ms ease-out' }}
         >
-          <div className="bg-indigo-600 text-white px-4 pt-4 pb-3 flex items-start justify-between gap-3">
+          <div className="bg-red-600 text-white px-4 pt-4 pb-3 flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                 <Bot className="w-5 h-5" />
               </div>
               <div>
                 <div className="font-semibold">NextGenLegal AI Assistant</div>
-                <div className="text-xs text-indigo-100 mt-1">
+                <div className="text-xs text-red-100 mt-1">
                   AI assistant — not a substitute for legal advice
                 </div>
               </div>
@@ -153,7 +153,7 @@ export function ChatBot() {
                 <div
                   className={`max-w-[85%] px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap ${
                     m.sender === 'user'
-                      ? 'bg-indigo-600 text-white rounded-br-md'
+                      ? 'bg-red-600 text-white rounded-br-md'
                       : 'bg-gray-100 text-gray-800 rounded-bl-md'
                   }`}
                 >
@@ -179,7 +179,7 @@ export function ChatBot() {
                 <div className="bg-gray-50 border border-gray-200 px-3 py-2 rounded-2xl text-sm text-gray-700 max-w-[85%]">
                   <div className="font-semibold">{serviceError}</div>
                   <div className="mt-3">
-                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={onRetry}>
+                    <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={onRetry}>
                       Retry
                     </Button>
                   </div>
@@ -208,7 +208,7 @@ export function ChatBot() {
               <Button
                 onClick={() => sendMessage()}
                 disabled={!canSend}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="bg-red-600 hover:bg-red-700 text-white"
                 aria-label="Send message"
               >
                 <Send className="w-4 h-4" />

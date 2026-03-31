@@ -36,7 +36,7 @@ type GroupedTasks = Record<TaskStatus, ComplianceTask[]>;
 
 function taskTypeBadge(taskType: string) {
   const t = taskType.toLowerCase();
-  if (t.includes('gst')) return { cls: 'bg-blue-50 text-blue-800 border-blue-100', label: 'GST' };
+  if (t.includes('gst')) return { cls: 'bg-red-50 text-red-800 border-red-100', label: 'GST' };
   if (t.includes('rera')) return { cls: 'bg-purple-50 text-purple-800 border-purple-100', label: 'RERA' };
   if (t.includes('contract')) return { cls: 'bg-amber-50 text-amber-800 border-amber-100', label: 'Contract' };
   if (t.includes('mca')) return { cls: 'bg-teal-50 text-teal-800 border-teal-100', label: 'MCA' };
@@ -208,7 +208,7 @@ export function ComplianceDashboard() {
 
   const columns: { id: TaskStatus; title: string; tone: string }[] = [
     { id: 'pending', title: 'Pending', tone: 'bg-gray-100 text-gray-800' },
-    { id: 'notified', title: 'Notified', tone: 'bg-indigo-100 text-indigo-800' },
+    { id: 'notified', title: 'Notified', tone: 'bg-red-100 text-red-800' },
     { id: 'completed', title: 'Completed', tone: 'bg-emerald-100 text-emerald-800' },
     { id: 'overdue', title: 'Overdue', tone: 'bg-red-100 text-red-800' },
   ];
@@ -223,7 +223,7 @@ export function ComplianceDashboard() {
             <h2 className="text-2xl font-bold text-gray-900">Compliance</h2>
             <p className="text-gray-600 mt-1">Track upcoming filings and deadlines.</p>
           </div>
-          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={openAdd}>
+          <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={openAdd}>
             <Plus className="w-4 h-4 mr-2" />
             Add task
           </Button>
@@ -309,7 +309,7 @@ export function ComplianceDashboard() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                            className="border-red-200 text-red-700 hover:bg-red-50"
                             onClick={() => openEdit(t)}
                           >
                             <Pencil className="w-4 h-4 mr-1" />
@@ -388,7 +388,7 @@ export function ComplianceDashboard() {
               <Textarea value={form.notes} onChange={(e) => setForm((s) => ({ ...s, notes: e.target.value }))} />
             </div>
 
-            <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" onClick={submit}>
+            <Button className="w-full bg-red-600 hover:bg-red-700 text-white" onClick={submit}>
               {editTask ? 'Save changes' : 'Create task'}
             </Button>
           </div>

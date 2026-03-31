@@ -24,21 +24,21 @@ import {
 import { toast } from 'sonner';
 
 const lawyerTaskTypes = [
-  { value: 'gst_return_monthly', label: 'GST Return (Monthly)', color: 'bg-blue-500' },
-  { value: 'gst_return_quarterly', label: 'GST Return (Quarterly)', color: 'bg-blue-500' },
+  { value: 'gst_return_monthly', label: 'GST Return (Monthly)', color: 'bg-red-500' },
+  { value: 'gst_return_quarterly', label: 'GST Return (Quarterly)', color: 'bg-red-500' },
   { value: 'rera_registration', label: 'RERA Registration', color: 'bg-purple-500' },
   { value: 'contract_expiry', label: 'Contract Expiry', color: 'bg-amber-500' },
-  { value: 'mca_annual_return', label: 'MCA Annual Return', color: 'bg-indigo-500' },
+  { value: 'mca_annual_return', label: 'MCA Annual Return', color: 'bg-red-500' },
   { value: 'professional_tax', label: 'Professional Tax', color: 'bg-rose-500' },
-  { value: 'labour_law_compliance', label: 'Labour Law Compliance', color: 'bg-indigo-500' },
+  { value: 'labour_law_compliance', label: 'Labour Law Compliance', color: 'bg-red-500' },
   { value: 'custom', label: 'Custom Task', color: 'bg-gray-500' },
 ];
 
 const citizenTaskTypes = [
-  { value: 'income_tax', label: 'Income Tax Return', color: 'bg-blue-500' },
+  { value: 'income_tax', label: 'Income Tax Return', color: 'bg-red-500' },
   { value: 'property_tax', label: 'Property Tax', color: 'bg-green-500' },
   { value: 'vehicle_insurance', label: 'Vehicle Insurance', color: 'bg-rose-500' },
-  { value: 'passport_renewal', label: 'Passport Renewal', color: 'bg-indigo-500' },
+  { value: 'passport_renewal', label: 'Passport Renewal', color: 'bg-red-500' },
   { value: 'custom', label: 'Custom Task', color: 'bg-gray-500' },
 ];
 
@@ -169,19 +169,19 @@ export function ComplianceDashboard({ user }: ComplianceDashboardProps) {
   };
 
   const getUrgencyColor = (daysLeft: number | null, status: string) => {
-    if (status === 'completed') return 'bg-indigo-100 text-indigo-700 border-indigo-200';
+    if (status === 'completed') return 'bg-red-100 text-red-700 border-red-200';
     if (daysLeft === null) return 'bg-gray-100 text-gray-700';
     if (daysLeft < 7) return 'bg-red-100 text-red-700 border-red-200';
     if (daysLeft < 30) return 'bg-amber-100 text-amber-700 border-amber-200';
-    return 'bg-indigo-100 text-indigo-700 border-indigo-200';
+    return 'bg-red-100 text-red-700 border-red-200';
   };
 
   const getUrgencyIcon = (daysLeft: number | null, status: string) => {
-    if (status === 'completed') return <CheckCircle2 className="w-5 h-5 text-indigo-600" />;
+    if (status === 'completed') return <CheckCircle2 className="w-5 h-5 text-red-600" />;
     if (daysLeft === null) return <Clock className="w-5 h-5 text-gray-400" />;
     if (daysLeft < 7) return <AlertTriangle className="w-5 h-5 text-red-500" />;
     if (daysLeft < 30) return <AlertCircle className="w-5 h-5 text-amber-500" />;
-    return <Clock className="w-5 h-5 text-indigo-500" />;
+    return <Clock className="w-5 h-5 text-red-500" />;
   };
 
   const pendingTasks = tasks.filter(t => t.status === 'pending');
@@ -197,11 +197,11 @@ export function ComplianceDashboard({ user }: ComplianceDashboardProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className={`text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <span className="inline-block px-4 py-1.5 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-full mb-4">
+          <span className="inline-block px-4 py-1.5 bg-red-100 text-red-700 text-sm font-semibold rounded-full mb-4">
             Compliance Monitoring
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-            Never Miss a <span className="text-indigo-600">Deadline</span>
+            Never Miss a <span className="text-red-600">Deadline</span>
           </h2>
           <p className="text-lg text-gray-600">
             Track all your legal and regulatory compliance deadlines in one place. 
@@ -213,8 +213,8 @@ export function ComplianceDashboard({ user }: ComplianceDashboardProps) {
         <div className={`grid sm:grid-cols-3 gap-6 mb-12 transition-all duration-700 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <FileText className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                <FileText className="w-6 h-6 text-red-600" />
               </div>
               <span className="text-3xl font-bold text-gray-900">{pendingTasks.length}</span>
             </div>
@@ -231,8 +231,8 @@ export function ComplianceDashboard({ user }: ComplianceDashboardProps) {
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                <CheckCircle2 className="w-6 h-6 text-indigo-600" />
+              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                <CheckCircle2 className="w-6 h-6 text-red-600" />
               </div>
               <span className="text-3xl font-bold text-gray-900">{completedTasks.length}</span>
             </div>
@@ -245,8 +245,8 @@ export function ComplianceDashboard({ user }: ComplianceDashboardProps) {
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-100">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
-                <Shield className="w-5 h-5 text-indigo-600" />
+              <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                <Shield className="w-5 h-5 text-red-600" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900">Compliance Tasks</h3>
@@ -255,7 +255,7 @@ export function ComplianceDashboard({ user }: ComplianceDashboardProps) {
             </div>
             <Button 
               onClick={() => setIsAddTaskOpen(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Task
@@ -305,7 +305,7 @@ export function ComplianceDashboard({ user }: ComplianceDashboardProps) {
                       variant="outline"
                       size="sm"
                       onClick={() => handleCompleteTask(task.id)}
-                      className="border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                      className="border-red-200 text-red-700 hover:bg-red-50"
                     >
                       <CheckCircle2 className="w-4 h-4 mr-2" />
                       Mark Done
@@ -337,8 +337,8 @@ export function ComplianceDashboard({ user }: ComplianceDashboardProps) {
             },
           ].map((feature, i) => (
             <div key={i} className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <feature.icon className="w-5 h-5 text-indigo-600" />
+              <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <feature.icon className="w-5 h-5 text-red-600" />
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-1">{feature.title}</h4>
@@ -360,7 +360,7 @@ export function ComplianceDashboard({ user }: ComplianceDashboardProps) {
                 <select
                   value={newTask.type}
                   onChange={(e) => setNewTask({ ...newTask, type: e.target.value })}
-                  className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500"
                 >
                   {taskTypes.map(t => (
                     <option key={t.value} value={t.value}>{t.label}</option>
@@ -394,7 +394,7 @@ export function ComplianceDashboard({ user }: ComplianceDashboardProps) {
               <Button 
                 onClick={handleAddTask}
                 disabled={!newTask.label || !newTask.due_date}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="w-full bg-red-600 hover:bg-red-700 text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Task

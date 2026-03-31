@@ -27,7 +27,7 @@ const documentTypes = [
     name: 'Non-Disclosure Agreement',
     description: 'Protect your confidential information with a legally binding NDA.',
     icon: Shield,
-    color: 'bg-blue-500',
+    color: 'bg-red-500',
     time: '2 min',
     fields: ['party_a_name', 'party_a_address', 'party_b_name', 'party_b_address', 'purpose', 'duration_months'],
   },
@@ -36,7 +36,7 @@ const documentTypes = [
     name: 'Rental Agreement',
     description: 'Standard rental agreement for residential properties in India.',
     icon: FileText,
-    color: 'bg-indigo-500',
+    color: 'bg-red-500',
     time: '3 min',
     fields: ['landlord_name', 'tenant_name', 'property_address', 'rent_amount', 'deposit', 'duration_months'],
   },
@@ -72,7 +72,7 @@ const documentTypes = [
     name: 'Power of Attorney',
     description: 'Authorize someone to act on your behalf legally.',
     icon: Shield,
-    color: 'bg-indigo-500',
+    color: 'bg-red-500',
     time: '3 min',
     fields: ['principal_name', 'attorney_name', 'powers_granted', 'effective_date', 'expiry_date'],
   },
@@ -140,11 +140,11 @@ export function DocumentStudio() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className={`text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <span className="inline-block px-4 py-1.5 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-full mb-4">
+          <span className="inline-block px-4 py-1.5 bg-red-100 text-red-700 text-sm font-semibold rounded-full mb-4">
             Document Studio
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-            Generate Legal Documents in <span className="text-indigo-600">Minutes</span>
+            Generate Legal Documents in <span className="text-red-600">Minutes</span>
           </h2>
           <p className="text-lg text-gray-600">
             Create professionally drafted legal documents instantly. Our AI-powered 
@@ -161,7 +161,7 @@ export function DocumentStudio() {
             { value: '24/7', label: 'Available' },
           ].map((stat, i) => (
             <div key={i} className="bg-gray-50 rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-indigo-600">{stat.value}</div>
+              <div className="text-2xl font-bold text-red-600">{stat.value}</div>
               <div className="text-sm text-gray-600">{stat.label}</div>
             </div>
           ))}
@@ -173,7 +173,7 @@ export function DocumentStudio() {
             <div
               key={doc.id}
               onClick={() => handleSelectDoc(doc)}
-              className={`group cursor-pointer bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all duration-500 ${
+              className={`group cursor-pointer bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-red-200 transition-all duration-500 ${
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
               }`}
               style={{ transitionDelay: `${200 + index * 100}ms` }}
@@ -182,14 +182,14 @@ export function DocumentStudio() {
                 <div className={`w-12 h-12 ${doc.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
                   <doc.icon className="w-6 h-6 text-white" />
                 </div>
-                <div className="flex items-center gap-1 text-indigo-600 text-sm font-medium">
+                <div className="flex items-center gap-1 text-red-600 text-sm font-medium">
                   <Clock className="w-4 h-4" />
                   {doc.time}
                 </div>
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">{doc.name}</h3>
               <p className="text-sm text-gray-600 mb-4">{doc.description}</p>
-              <div className="flex items-center text-indigo-600 font-medium text-sm group-hover:gap-2 transition-all">
+              <div className="flex items-center text-red-600 font-medium text-sm group-hover:gap-2 transition-all">
                 Generate
                 <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -201,7 +201,7 @@ export function DocumentStudio() {
         <div className={`bg-gray-50 rounded-2xl p-6 lg:p-8 transition-all duration-700 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-gray-900">Recent Documents</h3>
-            <Button variant="ghost" className="text-indigo-600">
+            <Button variant="ghost" className="text-red-600">
               View All
             </Button>
           </div>
@@ -212,8 +212,8 @@ export function DocumentStudio() {
                 className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-indigo-600" />
+                  <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-red-600" />
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-900">{doc.title}</h4>
@@ -223,7 +223,7 @@ export function DocumentStudio() {
                 <div className="flex items-center gap-3">
                   <Badge 
                     variant={doc.status === 'completed' ? 'default' : 'secondary'}
-                    className={doc.status === 'completed' ? 'bg-indigo-100 text-indigo-700' : ''}
+                    className={doc.status === 'completed' ? 'bg-red-100 text-red-700' : ''}
                   >
                     {doc.status === 'completed' ? 'Completed' : 'Draft'}
                   </Badge>
@@ -272,14 +272,14 @@ export function DocumentStudio() {
                 </div>
                 <div className="flex items-center gap-3 pt-4">
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Sparkles className="w-4 h-4 text-indigo-500" />
+                    <Sparkles className="w-4 h-4 text-red-500" />
                     AI-powered generation
                   </div>
                 </div>
                 <Button 
                   onClick={handleGenerate}
                   disabled={isGenerating}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white"
                 >
                   {isGenerating ? (
                     <>

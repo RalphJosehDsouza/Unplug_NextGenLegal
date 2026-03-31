@@ -74,26 +74,80 @@ async function geminiGenerate(message) {
 
 export async function ask(req, res, next) {
   try {
-    await connectRedis();
-
     const userId = req.user.id;
     const message = String(req.body?.message || '').trim();
     if (!message) return next({ statusCode: 400, message: 'message is required' });
 
-    // 1) Per-user rate limit: max 10/min
-    const rateKey = `chat_rate:${userId}`;
-    const count = await redis.incr(rateKey);
-    if (count === 1) {
-      await redis.expire(rateKey, 60);
-    }
-    if (count > 10) {
-      return next({ statusCode: 429, message: 'Rate limit exceeded. Try again later.' });
+    // Try connecting to Redis, but don't crash if it fails
+    let redisReady = false;
+    try {
+      await connectRedis();
+      redisReady = true;
+    } catch {
+      // Redis is unavailable — continue without caching
+      console.warn('[chatController] Redis unavailable, skipping cache');
     }
 
-    // 2) Cache by SHA-256 of normalized message
-    const cacheKey = `chat_cache:${sha256(message.toLowerCase())}`;
-    const cachedReply = await redis.get(cacheKey);
-    if (cachedReply) {
+    // 1) Per-user rate limit via Redis (skip if Redis is down)
+    if (redisReady) {
+      try {
+        const rateKey = `chat_rate:${userId}`;
+        const count = await redis.incr(rateKey);
+        if (count === 1) {
+          await redis.expire(rateKey, 60);
+        }
+        if (count > 10) {
+          return next({ statusCode: 429, message: 'Rate limit exceeded. Try again later.' });
+        }
+      } catch {
+        // Rate limit check failed, continue anyway
+      }
+    }
+
+    // 2) Cache check (skip if Redis is down)
+    if (redisReady) {
+      try {
+        const cacheKey = `chat_cache:${sha256(message.toLowerCase())}`;
+        const cachedReply = await redis.get(cacheKey);
+        if (cachedReply) {
+          try {
+            await ActivityLog.create({
+              user_id: userId,
+              action: 'chat_query',
+              resource_type: 'chatbot',
+              resource_id: null,
+              ip_address: getClientIp(req),
+            });
+          } catch { /* ignore logging errors */ }
+
+          return res.json({
+            success: true,
+            data: {
+              reply: cachedReply,
+              cached: true,
+              language_detected: detectLanguage(message),
+            },
+          });
+        }
+      } catch {
+        // Cache read failed, continue to Gemini
+      }
+    }
+
+    // 3) Call Gemini
+    const reply = await geminiGenerate(message);
+
+    // 4) Cache successful response (skip if Redis is down)
+    if (redisReady) {
+      try {
+        const cacheKey = `chat_cache:${sha256(message.toLowerCase())}`;
+        await redis.set(cacheKey, reply, 'EX', 3600);
+      } catch {
+        // Cache write failed, not critical
+      }
+    }
+
+    try {
       await ActivityLog.create({
         user_id: userId,
         action: 'chat_query',
@@ -101,30 +155,7 @@ export async function ask(req, res, next) {
         resource_id: null,
         ip_address: getClientIp(req),
       });
-
-      return res.json({
-        success: true,
-        data: {
-          reply: cachedReply,
-          cached: true,
-          language_detected: detectLanguage(message),
-        },
-      });
-    }
-
-    // 3) Call Gemini
-    const reply = await geminiGenerate(message);
-
-    // 4) Cache successful response for 3600 seconds
-    await redis.set(cacheKey, reply, 'EX', 3600);
-
-    await ActivityLog.create({
-      user_id: userId,
-      action: 'chat_query',
-      resource_type: 'chatbot',
-      resource_id: null,
-      ip_address: getClientIp(req),
-    });
+    } catch { /* ignore logging errors */ }
 
     return res.json({
       success: true,

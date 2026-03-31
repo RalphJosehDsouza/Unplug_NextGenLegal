@@ -1,0 +1,25 @@
+{
+  "maharashtra": [
+    { "district": "Mumbai", "court_name": "Mahila Court, Mumbai" },
+    { "district": "Pune", "court_name": "Mahila Court, Pune" },
+    { "district": "Thane", "court_name": "Mahila Court, Thane" }
+  ],
+  "delhi": [
+    { "district": "Central Delhi", "court_name": "Mahila Court, Central Delhi" },
+    { "district": "New Delhi", "court_name": "Mahila Court, New Delhi" },
+    { "district": "South Delhi", "court_name": "Mahila Court, South Delhi" }
+  ],
+  "karnataka": [
+    { "district": "Bengaluru Urban", "court_name": "Mahila Court, Bengaluru Urban" },
+    { "district": "Mysuru", "court_name": "Mahila Court, Mysuru" }
+  ],
+  "uttar pradesh": [
+    { "district": "Lucknow", "court_name": "Mahila Court, Lucknow" },
+    { "district": "Kanpur", "court_name": "Mahila Court, Kanpur" }
+  ],
+  "tamil nadu": [
+    { "district": "Chennai", "court_name": "Mahila Court, Chennai" },
+    { "district": "Coimbatore", "court_name": "Mahila Court, Coimbatore" }
+  ]
+}
+

@@ -97,7 +97,7 @@ export function NotificationBell() {
       <PopoverContent align="end" className="w-80 p-3">
         <div className="flex items-center justify-between mb-2">
           <div className="font-semibold text-gray-900">Notifications</div>
-          <button onClick={markAllRead} className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold">
+          <button onClick={markAllRead} className="text-xs text-red-600 hover:text-red-700 font-semibold">
             Mark all read
           </button>
         </div>
@@ -113,7 +113,7 @@ export function NotificationBell() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="font-semibold text-sm text-gray-900 flex items-center gap-2">
-                      {!n.read ? <span className="w-2 h-2 rounded-full bg-indigo-600" /> : <Check className="w-3.5 h-3.5 text-gray-300" />}
+                      {!n.read ? <span className="w-2 h-2 rounded-full bg-red-600" /> : <Check className="w-3.5 h-3.5 text-gray-300" />}
                       {n.title}
                     </div>
                     <div className="text-xs text-gray-600 mt-1">{n.body}</div>
@@ -131,7 +131,7 @@ export function NotificationBell() {
         </div>
 
         <div className="mt-3">
-          <Button variant="outline" className="w-full border-indigo-200 text-indigo-700 hover:bg-indigo-50" onClick={() => (window.location.href = '/compliance')}>
+          <Button variant="outline" className="w-full border-red-200 text-red-700 hover:bg-red-50" onClick={() => (window.location.href = '/compliance')}>
             View compliance dashboard
           </Button>
         </div>

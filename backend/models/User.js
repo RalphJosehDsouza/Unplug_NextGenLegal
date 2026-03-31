@@ -47,6 +47,29 @@ export const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    subscription_tier: {
+      type: DataTypes.ENUM('free', 'starter', 'professional', 'business'),
+      allowNull: false,
+      defaultValue: 'business', // Default to business so nothing is locked for demo
+    },
+    subscription_billing: {
+      type: DataTypes.ENUM('monthly', 'yearly'),
+      allowNull: false,
+      defaultValue: 'monthly',
+    },
+    subscription_started_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    subscription_expires_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    documents_generated_this_month: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,

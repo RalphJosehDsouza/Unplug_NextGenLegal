@@ -17,6 +17,7 @@ type BookingRow = {
   lawyer_id: string;
   lawyer_user_id?: string | null;
   lawyer_name: string | null;
+  is_lawyer_view?: boolean;
   slot_time: string;
   duration_mins: number;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
@@ -90,7 +91,7 @@ export function MyBookings() {
             <h2 className="text-2xl font-bold text-gray-900">My Bookings</h2>
             <p className="text-gray-600 mt-1">Upcoming consultations and past sessions.</p>
           </div>
-          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" asChild>
+          <Button className="bg-red-600 hover:bg-red-700 text-white" asChild>
             <Link to="/lawyers">Book new</Link>
           </Button>
         </div>
@@ -114,14 +115,14 @@ export function MyBookings() {
                           {new Date(b.slot_time).toLocaleString('en-IN')}
                         </div>
                       </div>
-                      <Badge variant="secondary" className="bg-indigo-50 text-indigo-800 border-indigo-100">
+                      <Badge variant="secondary" className="bg-red-50 text-red-800 border-red-100">
                         {b.status}
                       </Badge>
                     </div>
 
                     <div className="mt-3 flex items-center justify-between gap-3">
                       <div className="text-sm text-gray-700 flex items-center gap-2">
-                        <Timer className="w-4 h-4 text-indigo-600" />
+                        <Timer className="w-4 h-4 text-red-600" />
                         Starts in <b>{countdown(b.slot_time)}</b>
                       </div>
                       <div className="flex gap-2">
@@ -130,14 +131,16 @@ export function MyBookings() {
                             Join Meeting <ExternalLink className="w-4 h-4 ml-2" />
                           </Button>
                         ) : null}
-                        <Button 
-                          variant="outline" 
-                          className="border-blue-200 text-blue-700 hover:bg-blue-50"
-                          onClick={() => setVideoCallBooking(b)}
-                        >
-                          <Video className="w-4 h-4 mr-2" />
-                          Video Call
-                        </Button>
+                        {!b.is_lawyer_view && (
+                          <Button
+                            variant="outline"
+                            className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                            onClick={() => setVideoCallBooking(b)}
+                          >
+                            <Video className="w-4 h-4 mr-2" />
+                            Video Call
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -177,7 +180,7 @@ export function MyBookings() {
 
                     <div className="mt-3 flex items-center justify-between">
                       {b.status === 'completed' && !b.reviewed ? (
-                        <Button variant="outline" className="border-indigo-200 text-indigo-700 hover:bg-indigo-50" onClick={() => openReview(b)}>
+                        <Button variant="outline" className="border-red-200 text-red-700 hover:bg-red-50" onClick={() => openReview(b)}>
                           Leave Review <Star className="w-4 h-4 ml-2 text-amber-500" />
                         </Button>
                       ) : (
@@ -194,9 +197,9 @@ export function MyBookings() {
 
       {/* Video call component */}
       {videoCallBooking && (
-        <CitizenVideoCall 
-          booking_id={videoCallBooking.id} 
-          lawyer_name={videoCallBooking.lawyer_name || 'Lawyer'} 
+        <CitizenVideoCall
+          booking_id={videoCallBooking.id}
+          lawyer_name={videoCallBooking.lawyer_name || 'Lawyer'}
           lawyer_id={videoCallBooking.lawyer_user_id || videoCallBooking.lawyer_id}
           onClose={() => setVideoCallBooking(null)}
         />
@@ -216,9 +219,8 @@ export function MyBookings() {
                   <button
                     key={r}
                     onClick={() => setRating(r)}
-                    className={`w-10 h-10 rounded-xl border flex items-center justify-center ${
-                      rating >= r ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-200'
-                    }`}
+                    className={`w-10 h-10 rounded-xl border flex items-center justify-center ${rating >= r ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-200'
+                      }`}
                     aria-label={`${r} star`}
                   >
                     <Star className={`w-5 h-5 ${rating >= r ? 'text-amber-500 fill-amber-500' : 'text-gray-300'}`} />
@@ -232,7 +234,7 @@ export function MyBookings() {
               <Textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Share your experience…" />
             </div>
 
-            <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" onClick={submitReview}>
+            <Button className="w-full bg-red-600 hover:bg-red-700 text-white" onClick={submitReview}>
               Submit
             </Button>
           </div>

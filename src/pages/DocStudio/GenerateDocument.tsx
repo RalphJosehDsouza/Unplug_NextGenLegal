@@ -5,19 +5,15 @@ import {
   CheckCircle2,
   Calendar as CalendarIcon,
   Loader2,
-  Lock,
   Sparkles,
 } from 'lucide-react';
-
 import api from '@/api/axios';
-import { useAuthStore } from '@/store/authStore';
 import { templatesConfig, type TemplateConfig, type TemplateField } from './templates.config';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -44,7 +40,7 @@ function DatePickerField({
           variant="outline"
           className={cn('w-full justify-start text-left font-normal', !value && 'text-muted-foreground')}
         >
-          <CalendarIcon className="mr-2 h-4 w-4 text-indigo-600" />
+          <CalendarIcon className="mr-2 h-4 w-4 text-red-600" />
           {value ? format(selectedDate!, 'dd/MM/yyyy') : <span>{placeholder || 'Pick a date'}</span>}
         </Button>
       </PopoverTrigger>
@@ -108,8 +104,6 @@ export function GenerateDocument() {
     return templatesConfig.find((t) => t.id === id);
   }, [template_name]);
 
-  const plan = useAuthStore((s) => s.user?.plan) || 'freemium';
-
   const [title, setTitle] = useState('');
   const [formState, setFormState] = useState<FormState>({});
   const [isGenerating, setIsGenerating] = useState(false);
@@ -132,7 +126,7 @@ export function GenerateDocument() {
         <div className="max-w-2xl mx-auto bg-white border rounded-2xl p-6">
           <h2 className="text-xl font-bold text-gray-900">Template not found</h2>
           <p className="text-gray-600 mt-2">Please choose a template from the library.</p>
-          <Button className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => navigate('/documents')}>
+          <Button className="mt-4 bg-red-600 hover:bg-red-700 text-white" onClick={() => navigate('/documents')}>
             Back to templates
           </Button>
         </div>
@@ -182,7 +176,7 @@ export function GenerateDocument() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-start justify-between gap-6 mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-sm font-semibold mb-3">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-red-50 text-red-700 rounded-full text-sm font-semibold mb-3">
               <TemplateIcon className="w-4 h-4" />
               {template.label} Studio
             </div>
@@ -191,12 +185,6 @@ export function GenerateDocument() {
               Your document will be ready in <b>~10 seconds</b>.
             </p>
           </div>
-          {plan === 'freemium' && (
-            <Badge variant="secondary" className="bg-indigo-100 text-indigo-800 border-indigo-200">
-              <Lock className="w-3.5 h-3.5" />
-              Freemium (max 3 docs)
-            </Badge>
-          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -233,7 +221,7 @@ export function GenerateDocument() {
               <Button
                 onClick={onGenerate}
                 disabled={!canGenerate || isGenerating}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="w-full bg-red-600 hover:bg-red-700 text-white"
               >
                 {isGenerating ? (
                   <span className="inline-flex items-center gap-2">
@@ -253,7 +241,7 @@ export function GenerateDocument() {
           <div className="lg:sticky top-24">
             <div className="bg-gray-50 border rounded-2xl p-6">
               <div className="flex items-center gap-2 mb-4">
-                <CheckCircle2 className="w-5 h-5 text-indigo-600" />
+                <CheckCircle2 className="w-5 h-5 text-red-600" />
                 <h3 className="font-bold text-gray-900">Live preview</h3>
               </div>
               <p className="text-sm text-gray-600 mb-4">We’ll include the fields you’ve filled here.</p>
@@ -266,7 +254,7 @@ export function GenerateDocument() {
                       <div className="text-sm text-gray-800">{f.label}</div>
                       <div
                         className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                          ok ? 'bg-indigo-100 text-indigo-700' : 'bg-white text-gray-400 border border-gray-200'
+                          ok ? 'bg-red-100 text-red-700' : 'bg-white text-gray-400 border border-gray-200'
                         }`}
                       >
                         {ok ? 'Filled' : 'Missing'}

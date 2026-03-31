@@ -130,7 +130,7 @@ export function BookingFlow({
                 <div className="text-xl font-bold text-gray-900 mt-1">₹{formatRupeesFromPaisa(amountPaise)}</div>
               </div>
 
-              <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setStep(2)}>
+              <Button className="w-full bg-red-600 hover:bg-red-700 text-white" onClick={() => setStep(2)}>
                 Continue
               </Button>
             </div>
@@ -163,7 +163,7 @@ export function BookingFlow({
                 </div>
                 <div className="text-sm text-emerald-700 mt-2">Your booking is confirmed.</div>
                 {meetingUrl ? (
-                  <a className="text-sm text-indigo-700 font-semibold mt-3 block break-all" href={meetingUrl} target="_blank" rel="noreferrer">
+                  <a className="text-sm text-red-700 font-semibold mt-3 block break-all" href={meetingUrl} target="_blank" rel="noreferrer">
                     {meetingUrl}
                   </a>
                 ) : null}
@@ -173,14 +173,14 @@ export function BookingFlow({
                 {calendarUrl ? (
                   <Button
                     variant="outline"
-                    className="flex-1 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                    className="flex-1 border-red-200 text-red-700 hover:bg-red-50"
                     onClick={() => window.open(calendarUrl, '_blank')}
                   >
                     <CalendarPlus className="w-4 h-4 mr-2" />
                     Add to calendar
                   </Button>
                 ) : null}
-                <Button className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => onOpenChange(false)}>
+                <Button className="flex-1 bg-red-600 hover:bg-red-700 text-white" onClick={() => onOpenChange(false)}>
                   Close
                 </Button>
               </div>

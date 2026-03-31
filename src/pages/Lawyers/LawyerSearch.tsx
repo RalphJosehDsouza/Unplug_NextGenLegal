@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Filter, SlidersHorizontal } from 'lucide-react';
 
 import api from '@/api/axios';
@@ -213,7 +213,10 @@ function Filters({
 export function LawyerSearch() {
   const navigate = useNavigate();
 
-  const [specialization, setSpecialization] = useState<string[]>([]);
+  const [searchParams] = useSearchParams();
+  const specializationFromUrl = searchParams.get('specialization');
+
+  const [specialization, setSpecialization] = useState<string[]>(() => (specializationFromUrl ? [specializationFromUrl] : []));
   const [languages, setLanguages] = useState<string[]>([]);
   const [state, setState] = useState<string>('__all__');
   const [verifiedOnly, setVerifiedOnly] = useState(true);
@@ -222,6 +225,12 @@ export function LawyerSearch() {
 
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<'rate_asc' | 'rate_desc' | 'rating'>('rate_asc');
+
+  useEffect(() => {
+    if (!specializationFromUrl) return;
+    setSpecialization([specializationFromUrl]);
+    setPage(1);
+  }, [specializationFromUrl]);
 
   const query = useQuery({
     queryKey: ['lawyers', specialization, languages, state, verifiedOnly, price, stars, page, sort],
@@ -267,10 +276,10 @@ export function LawyerSearch() {
     <div className="bg-white border rounded-2xl p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="font-bold text-gray-900 flex items-center gap-2">
-          <SlidersHorizontal className="w-4 h-4 text-indigo-600" />
+          <SlidersHorizontal className="w-4 h-4 text-red-600" />
           Filters
         </div>
-        <button onClick={reset} className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
+        <button onClick={reset} className="text-xs font-semibold text-red-600 hover:text-red-700">
           Reset
         </button>
       </div>
@@ -321,7 +330,7 @@ export function LawyerSearch() {
           <div className="flex items-center gap-2">
             <div className="hidden lg:flex items-center gap-2 text-sm text-gray-600">
               {appliedCount > 0 ? (
-                <Badge variant="secondary" className="bg-indigo-100 text-indigo-800 border-indigo-200">
+                <Badge variant="secondary" className="bg-red-100 text-red-800 border-red-200">
                   {appliedCount} filters
                 </Badge>
               ) : null}
@@ -330,7 +339,7 @@ export function LawyerSearch() {
             <div className="lg:hidden">
               <Drawer>
                 <DrawerTrigger asChild>
-                  <Button variant="outline" className="border-indigo-200 text-indigo-700 hover:bg-indigo-50">
+                  <Button variant="outline" className="border-red-200 text-red-700 hover:bg-red-50">
                     <Filter className="w-4 h-4 mr-2" />
                     Filters
                   </Button>

@@ -13,10 +13,10 @@ import { Link } from 'react-router-dom';
 const footerLinks = {
   product: [
     { label: 'Features', href: '/' },
-    { label: 'Lawyer Directory', href: '/lawyers' },
+    { label: 'Find a Lawyer', href: '/lawyers' },
     { label: 'Document Studio', href: '/documents' },
     { label: 'Compliance', href: '/compliance' },
-    { label: 'Pricing', href: '/pricing' },
+    { label: 'Legal Notice', href: '/legal-notice' },
   ],
   company: [
     { label: 'About Us', href: '#' },
@@ -26,11 +26,11 @@ const footerLinks = {
     { label: 'Contact', href: '#' },
   ],
   resources: [
-    { label: 'Help Center', href: '#' },
-    { label: 'API Documentation', href: '#' },
+    { label: 'BNS Law Mapper', href: '/law-mapper' },
+    { label: 'eCourts Tracker', href: '/ecourts' },
+    { label: 'RTI Assistant', href: '/rti' },
+    { label: 'AI Doc Review', href: '/doc-review' },
     { label: 'Legal Templates', href: '/documents' },
-    { label: 'Compliance Guides', href: '/compliance' },
-    { label: 'Webinars', href: '#' },
   ],
   legal: [
     { label: 'Privacy Policy', href: '#' },
@@ -55,7 +55,7 @@ export function Footer() {
           <div className="grid lg:grid-cols-6 gap-12">
             <div className="lg:col-span-2">
               <Link to="/" className="flex items-center gap-2 mb-6">
-                <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center">
                   <Scale className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-bold">NextGenLegal</span>
@@ -156,7 +156,7 @@ export function Footer() {
                 <a
                   key={social.label}
                   href={social.href}
-                  className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center text-gray-400 hover:bg-indigo-500 hover:text-white transition-colors"
+                  className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center text-gray-400 hover:bg-red-500 hover:text-white transition-colors"
                   aria-label={social.label}
                 >
                   <social.icon className="w-5 h-5" />

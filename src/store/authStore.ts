@@ -6,6 +6,8 @@ export type AuthUser = {
   role: 'citizen' | 'lawyer' | 'admin' | string;
   full_name: string;
   plan?: string;
+  subscription_tier?: 'free' | 'starter' | 'professional' | 'business';
+  lawyer?: any;
 };
 
 type AuthState = {

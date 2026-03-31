@@ -317,8 +317,13 @@ export async function listMyBookings(req, res, next) {
   try {
     const userId = req.user.id;
 
+    const lawyerProfile = await Lawyer.findOne({ where: { user_id: userId } });
+    const whereClause = lawyerProfile
+      ? { [Op.or]: [{ user_id: userId }, { lawyer_id: lawyerProfile.id }] }
+      : { user_id: userId };
+
     const bookings = await Booking.findAll({
-      where: { user_id: userId },
+      where: whereClause,
       include: [
         {
           model: Lawyer,
@@ -326,6 +331,7 @@ export async function listMyBookings(req, res, next) {
           include: [{ model: User, as: 'user', attributes: ['full_name', 'email'] }],
           attributes: ['id', 'user_id', 'rate_per_hour'],
         },
+        { model: User, as: 'user', attributes: ['full_name', 'email'] },
         { model: Review, as: 'review', required: false, attributes: ['id'] },
       ],
       order: [['slot_time', 'DESC']],
@@ -334,17 +340,21 @@ export async function listMyBookings(req, res, next) {
     return res.json({
       success: true,
       data: {
-        bookings: bookings.map((b) => ({
-          id: b.id,
-          lawyer_id: b.lawyer_id,
-          lawyer_user_id: b.lawyer?.user_id || null,
-          lawyer_name: b.lawyer?.user?.full_name || null,
-          slot_time: b.slot_time,
-          duration_mins: b.duration_mins,
-          status: b.status,
-          meeting_url: b.meeting_url,
-          reviewed: Boolean(b.review?.id),
-        })),
+        bookings: bookings.map((b) => {
+          const isLawyerView = lawyerProfile && b.lawyer_id === lawyerProfile.id;
+          return {
+            id: b.id,
+            lawyer_id: b.lawyer_id,
+            lawyer_user_id: b.lawyer?.user_id || null,
+            lawyer_name: isLawyerView ? (b.user?.full_name || 'Client') : (b.lawyer?.user?.full_name || 'Lawyer'),
+            is_lawyer_view: isLawyerView,
+            slot_time: b.slot_time,
+            duration_mins: b.duration_mins,
+            status: b.status,
+            meeting_url: b.meeting_url,
+            reviewed: Boolean(b.review?.id),
+          };
+        }),
       },
     });
   } catch (err) {

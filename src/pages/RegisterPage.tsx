@@ -89,20 +89,20 @@ export function RegisterPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 mt-16">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="bg-indigo-600 p-6 text-white text-center">
+        <div className="bg-red-600 p-6 text-white text-center">
           <div className="flex justify-center mb-4">
             <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
               <Scale className="w-6 h-6" />
             </div>
           </div>
           <h2 className="text-2xl font-bold">Create Account</h2>
-          <p className="text-indigo-100 mt-2">Join NextGenLegal today</p>
+          <p className="text-red-100 mt-2">Join NextGenLegal today</p>
         </div>
 
         <div className="p-8">
           <div className="flex gap-4 mb-6">
-            <button type="button" onClick={() => setRole('citizen')} className={`flex-1 py-3 px-4 rounded-xl border font-medium transition-all ${role === 'citizen' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600'}`}>Citizen</button>
-            <button type="button" onClick={() => setRole('lawyer')} className={`flex-1 py-3 px-4 rounded-xl border font-medium transition-all ${role === 'lawyer' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600'}`}>Lawyer</button>
+            <button type="button" onClick={() => setRole('citizen')} className={`flex-1 py-3 px-4 rounded-xl border font-medium transition-all ${role === 'citizen' ? 'border-red-600 bg-red-50 text-red-700' : 'border-gray-200 text-gray-600'}`}>Citizen</button>
+            <button type="button" onClick={() => setRole('lawyer')} className={`flex-1 py-3 px-4 rounded-xl border font-medium transition-all ${role === 'lawyer' ? 'border-red-600 bg-red-50 text-red-700' : 'border-gray-200 text-gray-600'}`}>Lawyer</button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
@@ -226,7 +226,7 @@ export function RegisterPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-6 mt-6"
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-6 mt-6"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -267,7 +267,7 @@ export function RegisterPage() {
 
           <p className="mt-8 text-center text-sm text-gray-600">
             Already have an account?{' '}
-            <Link to="/login" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            <Link to="/login" className="text-red-600 hover:text-red-700 font-medium">
               Sign in
             </Link>
           </p>

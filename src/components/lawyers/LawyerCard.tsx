@@ -29,7 +29,15 @@ function formatRupeesFromPaisa(paisa: number) {
   return rupees.toLocaleString('en-IN');
 }
 
-export function LawyerCard({ lawyer, onBook }: { lawyer: LawyerListItem; onBook: () => void }) {
+export function LawyerCard({
+  lawyer,
+  onBook,
+  buttonLabel,
+}: {
+  lawyer: LawyerListItem;
+  onBook: () => void;
+  buttonLabel?: string;
+}) {
   const name = lawyer.user?.full_name || 'Verified Lawyer';
   const init = useMemo(() => initials(name), [name]);
 
@@ -44,7 +52,7 @@ export function LawyerCard({ lawyer, onBook }: { lawyer: LawyerListItem; onBook:
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white font-bold flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-red-600 text-white font-bold flex items-center justify-center">
             {init}
           </div>
           <div>
@@ -67,7 +75,7 @@ export function LawyerCard({ lawyer, onBook }: { lawyer: LawyerListItem; onBook:
 
       <div className="mt-4 flex flex-wrap gap-2">
         {shown.map((s) => (
-          <Badge key={s} variant="secondary" className="bg-indigo-50 text-indigo-800 border-indigo-100">
+          <Badge key={s} variant="secondary" className="bg-red-50 text-red-800 border-red-100">
             {s}
           </Badge>
         ))}
@@ -97,8 +105,8 @@ export function LawyerCard({ lawyer, onBook }: { lawyer: LawyerListItem; onBook:
         </div>
       </div>
 
-      <Button className="w-full mt-5 bg-indigo-600 hover:bg-indigo-700 text-white" onClick={onBook}>
-        Book Consultation
+      <Button className="w-full mt-5 bg-red-600 hover:bg-red-700 text-white" onClick={onBook}>
+        {buttonLabel || 'Book Consultation'}
       </Button>
     </div>
   );

@@ -131,24 +131,38 @@ export async function getPayoutStats(req, res, next) {
       }
     });
 
-    // Aggregate Released This Month sum
+    // Aggregate Released This Month sum — use JS reduce instead of Sequelize .sum() on JSONB
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const thisMonthSumPaise = await ActivityLog.sum('metadata.amount_paise', {
-      where: {
-        user_id: userId,
-        action: 'payout_released',
-        created_at: { [Op.gte]: startOfMonth }
-      }
-    });
+    let thisMonthSumPaise = 0;
+    try {
+      const releasedLogs = await ActivityLog.findAll({
+        where: {
+          user_id: userId,
+          action: 'payout_released',
+          created_at: { [Op.gte]: startOfMonth }
+        },
+        attributes: ['metadata'],
+        raw: true,
+      });
+
+      thisMonthSumPaise = releasedLogs.reduce((sum, log) => {
+        const amt = Number(log?.metadata?.amount_paise || 0);
+        return sum + (Number.isFinite(amt) ? amt : 0);
+      }, 0);
+    } catch {
+      // If metadata column doesn't exist or any other issue, default to 0
+      thisMonthSumPaise = 0;
+    }
 
     return res.json({
       success: true,
       data: {
         in_escrow_paise: Number(inEscrowSumPaise) || 0,
-        this_month_released_paise: Number(thisMonthSumPaise) || 0
+        this_month_released_paise: thisMonthSumPaise,
+        available_balance_paise: Number(lawyer.payout_balance_paise) || 0,
       }
     });
   } catch (err) {

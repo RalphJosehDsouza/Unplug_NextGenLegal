@@ -229,11 +229,11 @@ export function LawyerDirectory() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className={`text-center max-w-3xl mx-auto mb-12 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <span className="inline-block px-4 py-1.5 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-full mb-4">
+          <span className="inline-block px-4 py-1.5 bg-red-100 text-red-700 text-sm font-semibold rounded-full mb-4">
             Lawyer Directory
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-            Find the Right <span className="text-indigo-600">Legal Expert</span>
+            Find the Right <span className="text-red-600">Legal Expert</span>
           </h2>
           <p className="text-lg text-gray-600">
             Browse our network of verified lawyers across India. Filter by specialization, 
@@ -271,21 +271,21 @@ export function LawyerDirectory() {
               <select
                 value={selectedSpec}
                 onChange={(e) => setSelectedSpec(e.target.value)}
-                className="px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 {specializations.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
               <select
                 value={selectedState}
                 onChange={(e) => setSelectedState(e.target.value)}
-                className="px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 {states.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
               <select
                 value={selectedLang}
                 onChange={(e) => setSelectedLang(e.target.value)}
-                className="px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 {languages.map(l => <option key={l} value={l}>{l}</option>)}
               </select>
@@ -346,7 +346,7 @@ export function LawyerDirectory() {
                   <div className="flex items-center gap-2">
                     <h3 className="font-bold text-gray-900">{lawyer.name}</h3>
                     {lawyer.verified && (
-                      <div className="w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center">
+                      <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
                         <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
@@ -394,7 +394,7 @@ export function LawyerDirectory() {
                 </div>
                 <Button 
                   onClick={() => handleBookConsultation(lawyer)}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className="bg-red-600 hover:bg-red-700 text-white"
                 >
                   <Calendar className="w-4 h-4 mr-2" />
                   Book
@@ -448,7 +448,7 @@ export function LawyerDirectory() {
                     <span>₹{selectedLawyer.rate_per_hour * bookingHours}</span>
                   </div>
                   <Button 
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white"
                     onClick={processHiring}
                     disabled={isProcessing}
                   >
@@ -473,7 +473,7 @@ export function LawyerDirectory() {
                   <div className="flex justify-between text-gray-400"><span>Platform Commission Recorded:</span> <span>₹{bookingSuccess.commission}</span></div>
                 </div>
                 <Button 
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white mt-4"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white mt-4"
                   onClick={() => setIsBookingOpen(false)}
                 >
                   Close

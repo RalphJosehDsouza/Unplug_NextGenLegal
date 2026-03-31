@@ -48,7 +48,7 @@ export function CasesPage({ user }: { user: any }) {
             <h1 className="text-3xl font-bold text-gray-900">Case File Management</h1>
             <p className="text-gray-600">Track required documents and client case files.</p>
           </div>
-          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+          <Button className="bg-red-600 hover:bg-red-700 text-white">
             + New Case
           </Button>
         </div>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+
 import api from '@/api/axios';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -30,7 +30,6 @@ const backendBase = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
 
 export function DashboardPage({ user }: DashboardPageProps) {
   const isLawyer = user?.role === 'lawyer';
-  const [hasSubscription, setHasSubscription] = useState(Boolean(user?.plan && user.plan !== 'freemium'));
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerUrl, setViewerUrl] = useState<string | null>(null);
   const [viewerFileName, setViewerFileName] = useState('');
@@ -63,26 +62,6 @@ export function DashboardPage({ user }: DashboardPageProps) {
     }
   };
 
-  if (isLawyer && !hasSubscription) {
-    return (
-      <div className="min-h-screen bg-gray-50 pt-24 pb-12 px-4 flex justify-center items-center">
-        <div className="max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100 text-center">
-          <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-600">
-            <Shield className="w-8 h-8" />
-          </div>
-          <h2 className="text-2xl font-bold mb-2">Lawyer Portal Access</h2>
-          <p className="text-gray-600 mb-6">Subscribe to unlock case management, automated reminders, and client secure document sharing.</p>
-          <div className="text-4xl font-bold text-gray-900 mb-6">₹60<span className="text-lg text-gray-500 font-normal">/month</span></div>
-          <Button onClick={() => {
-              setHasSubscription(true);
-              toast.success("Subscription activated successfully!");
-          }} className="w-full bg-indigo-600 text-white hover:bg-indigo-700 py-6 text-lg font-semibold rounded-xl">
-            Subscribe Now
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   const quickLinks = [
     {
@@ -90,14 +69,14 @@ export function DashboardPage({ user }: DashboardPageProps) {
       description: 'Generate legal documents instantly',
       icon: FileText,
       url: '/documents',
-      color: 'bg-indigo-500',
+      color: 'bg-red-500',
     },
     {
-      title: 'Find Lawyers',
-      description: 'Connect with verified legal experts',
+      title: 'Find a Lawyer',
+      description: 'Search and filter expert lawyers',
       icon: Users,
       url: '/lawyers',
-      color: 'bg-blue-500',
+      color: 'bg-red-500',
     },
     {
       title: 'Compliance',
@@ -143,7 +122,7 @@ export function DashboardPage({ user }: DashboardPageProps) {
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">{link.title}</h3>
               <p className="text-sm text-gray-500 flex-1">{link.description}</p>
-              <div className="mt-4 flex items-center text-sm font-medium text-indigo-600 group-hover:gap-2 transition-all">
+              <div className="mt-4 flex items-center text-sm font-medium text-red-600 group-hover:gap-2 transition-all">
                 Get started <ArrowRight className="w-4 h-4 ml-1" />
               </div>
             </Link>
@@ -175,12 +154,12 @@ export function DashboardPage({ user }: DashboardPageProps) {
               {recentItems.map((item) => (
                 <button
                   key={item.id}
-                  className="w-full text-left rounded-xl border border-gray-100 px-4 py-3 hover:border-indigo-200 hover:bg-indigo-50/40 transition-colors"
+                  className="w-full text-left rounded-xl border border-gray-100 px-4 py-3 hover:border-red-200 hover:bg-red-50/40 transition-colors"
                   onClick={() => handleOpenViewer(item.document.id, item.document.title)}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="font-medium text-gray-900">{item.document.title}</div>
-                    <Badge variant="secondary" className="bg-indigo-50 text-indigo-800 border-indigo-100">
+                    <Badge variant="secondary" className="bg-red-50 text-red-800 border-red-100">
                       View
                     </Badge>
                   </div>

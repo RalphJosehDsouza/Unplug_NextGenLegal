@@ -15,7 +15,7 @@ const features = [
     icon: FileText,
     title: 'AI Document Generation',
     description: 'Generate legal documents in under 60 seconds. NDAs, rental agreements, partnership deeds, and more.',
-    color: 'bg-blue-500',
+    color: 'bg-red-500',
     stat: '60 sec',
     statLabel: 'Average generation time',
   },
@@ -23,7 +23,7 @@ const features = [
     icon: Users,
     title: 'Expert Lawyer Network',
     description: 'Connect with verified lawyers across India. Filter by specialization, language, and location.',
-    color: 'bg-indigo-500',
+    color: 'bg-red-500',
     stat: '10,000+',
     statLabel: 'Verified lawyers',
   },
@@ -45,11 +45,11 @@ const features = [
   },
   {
     icon: Clock,
-    title: 'Affordable Pricing',
-    description: 'Save up to 90% on legal costs. Subscriptions starting at just ₹199/month.',
+    title: 'Zero Platform Fees',
+    description: 'No subscriptions. Book any lawyer — you only pay the consultation fee. Platform earns a small 3–5% commission.',
     color: 'bg-rose-500',
-    stat: '90%',
-    statLabel: 'Cost savings',
+    stat: '0',
+    statLabel: 'Upfront cost to users',
   },
   {
     icon: Globe,
@@ -71,7 +71,7 @@ const features = [
     icon: Lock,
     title: 'Bank-Grade Security',
     description: 'Your documents are encrypted with AES-256 and stored securely. Aadhaar verification supported.',
-    color: 'bg-indigo-500',
+    color: 'bg-red-500',
     stat: '256-bit',
     statLabel: 'Encryption',
   },
@@ -108,12 +108,12 @@ export function Features() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 lg:mb-20">
-          <span className="inline-block px-4 py-1.5 bg-indigo-100 text-indigo-700 text-sm font-semibold rounded-full mb-4">
+          <span className="inline-block px-4 py-1.5 bg-red-100 text-red-700 text-sm font-semibold rounded-full mb-4">
             Features
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
             Everything You Need for
-            <span className="text-indigo-600"> Legal Success</span>
+            <span className="text-red-600"> Legal Success</span>
           </h2>
           <p className="text-lg text-gray-600">
             From document generation to compliance monitoring, NextGenLegal provides 
@@ -152,7 +152,7 @@ export function Features() {
               </div>
 
               {/* Hover Gradient */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
             </div>
           ))}
         </div>
@@ -162,13 +162,13 @@ export function Features() {
           <p className="text-gray-600 mb-4">
             Ready to transform your legal experience?
           </p>
-          <button 
-            onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
-            className="inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-700 transition-colors"
+          <a 
+            href="/lawyers"
+            className="inline-flex items-center gap-2 text-red-600 font-semibold hover:text-red-700 transition-colors"
           >
-            View Pricing Plans
+            Find the Right Lawyer
             <span className="text-lg">→</span>
-          </button>
+          </a>
         </div>
       </div>
     </section>

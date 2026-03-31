@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import api from '@/api/axios';
 import { toast } from 'sonner';
+import { WebRTCVideo } from './WebRTCVideo';
 
 interface IncomingCall {
   booking_id: string;
@@ -27,6 +28,8 @@ export const LawyerAlertsTab = () => {
   const [startNow, setStartNow] = useState(false);
   const [scheduledTime, setScheduledTime] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [activeCallRoomId, setActiveCallRoomId] = useState<string | null>(null);
+  const [activeCallBookingId, setActiveCallBookingId] = useState<string | null>(null);
 
   // Listen for incoming calls
   useEffect(() => {
@@ -132,7 +135,13 @@ export const LawyerAlertsTab = () => {
         webrtc_room_id: roomId,
       });
 
-      toast.success(startNow ? 'Starting call now!' : 'Call scheduled!');
+      if (startNow) {
+        toast.success('Starting call now!');
+        setActiveCallRoomId(roomId);
+        setActiveCallBookingId(selectedCall.booking_id);
+      } else {
+        toast.success('Call scheduled!');
+      }
       setIsScheduling(false);
       setSelectedCall(null);
       setStartNow(false);
@@ -145,6 +154,19 @@ export const LawyerAlertsTab = () => {
     }
   };
 
+  const handleEndCall = async () => {
+    if (activeCallBookingId) {
+      try {
+        await api.post('/api/webrtc/end', { booking_id: activeCallBookingId });
+        toast.success('Call ended');
+      } catch (error) {
+        console.error('[Lawyer] Error ending call:', error);
+      }
+    }
+    setActiveCallRoomId(null);
+    setActiveCallBookingId(null);
+  };
+
   if (!isConnected) {
     return (
       <Alert className="border-yellow-500 bg-yellow-50">
@@ -153,6 +175,19 @@ export const LawyerAlertsTab = () => {
           Connecting to alerts system...
         </AlertDescription>
       </Alert>
+    );
+  }
+
+  if (activeCallRoomId) {
+    return (
+      <div className="w-full h-[600px] bg-black rounded-xl overflow-hidden shadow-lg border border-gray-800">
+        <WebRTCVideo
+          roomId={activeCallRoomId}
+          userId={user?.id || ''}
+          isInitiator={true}
+          onCallEnd={handleEndCall}
+        />
+      </div>
     );
   }
 

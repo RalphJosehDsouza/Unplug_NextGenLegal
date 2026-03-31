@@ -279,7 +279,7 @@ export function CourtHousePage({ user }: { user: { role?: string } | null }) {
               </select>
             </div>
 
-            <Button type="submit" disabled={submitting} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Button type="submit" disabled={submitting} className="w-full bg-red-600 hover:bg-red-700 text-white">
               {submitting ? 'Scheduling...' : 'Schedule hearing'}
             </Button>
           </form>
@@ -311,7 +311,7 @@ export function CourtHousePage({ user }: { user: { role?: string } | null }) {
                     type="button"
                     onClick={() => setSelectedHearingId(h.id)}
                     className={`w-full text-left border rounded-xl p-4 ${
-                      selectedHearingId === h.id ? 'border-indigo-300 bg-indigo-50' : 'border-gray-200 bg-white'
+                      selectedHearingId === h.id ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-white'
                     }`}
                   >
                     <div className="font-semibold text-gray-900">{h.topic}</div>
@@ -366,7 +366,7 @@ export function CourtHousePage({ user }: { user: { role?: string } | null }) {
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                className="border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                                className="border-red-200 text-red-700 hover:bg-red-50"
                                 onClick={() =>
                                   handleOpenViewer(
                                     item.upload?.document?.id || '',

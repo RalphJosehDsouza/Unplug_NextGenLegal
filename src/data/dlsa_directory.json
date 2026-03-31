@@ -1,0 +1,25 @@
+{
+  "maharashtra": {
+    "Mumbai": { "dlsa_name": "District Legal Services Authority (DLSA) - Mumbai", "address": "DLSA Office, Mumbai (address placeholder)", "phone": "" },
+    "Pune": { "dlsa_name": "District Legal Services Authority (DLSA) - Pune", "address": "DLSA Office, Pune (address placeholder)", "phone": "" },
+    "Thane": { "dlsa_name": "District Legal Services Authority (DLSA) - Thane", "address": "DLSA Office, Thane (address placeholder)", "phone": "" }
+  },
+  "delhi": {
+    "Central Delhi": { "dlsa_name": "District Legal Services Authority (DLSA) - Central Delhi", "address": "DLSA Office, Central Delhi (address placeholder)", "phone": "" },
+    "New Delhi": { "dlsa_name": "District Legal Services Authority (DLSA) - New Delhi", "address": "DLSA Office, New Delhi (address placeholder)", "phone": "" },
+    "South Delhi": { "dlsa_name": "District Legal Services Authority (DLSA) - South Delhi", "address": "DLSA Office, South Delhi (address placeholder)", "phone": "" }
+  },
+  "karnataka": {
+    "Bengaluru Urban": { "dlsa_name": "District Legal Services Authority (DLSA) - Bengaluru Urban", "address": "DLSA Office, Bengaluru (address placeholder)", "phone": "" },
+    "Mysuru": { "dlsa_name": "District Legal Services Authority (DLSA) - Mysuru", "address": "DLSA Office, Mysuru (address placeholder)", "phone": "" }
+  },
+  "uttar pradesh": {
+    "Lucknow": { "dlsa_name": "District Legal Services Authority (DLSA) - Lucknow", "address": "DLSA Office, Lucknow (address placeholder)", "phone": "" },
+    "Kanpur": { "dlsa_name": "District Legal Services Authority (DLSA) - Kanpur", "address": "DLSA Office, Kanpur (address placeholder)", "phone": "" }
+  },
+  "tamil nadu": {
+    "Chennai": { "dlsa_name": "District Legal Services Authority (DLSA) - Chennai", "address": "DLSA Office, Chennai (address placeholder)", "phone": "" },
+    "Coimbatore": { "dlsa_name": "District Legal Services Authority (DLSA) - Coimbatore", "address": "DLSA Office, Coimbatore (address placeholder)", "phone": "" }
+  }
+}
+

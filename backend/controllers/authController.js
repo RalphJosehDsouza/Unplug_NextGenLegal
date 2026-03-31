@@ -106,6 +106,7 @@ export async function register(req, res, next) {
           email: user.email,
           role: user.role,
           full_name: user.full_name,
+          subscription_tier: user.subscription_tier || 'business',
         },
       },
     });
@@ -138,6 +139,7 @@ export async function login(req, res, next) {
           email: user.email,
           role: user.role,
           full_name: user.full_name,
+          subscription_tier: user.subscription_tier || 'business',
         },
       },
     });
@@ -207,6 +209,7 @@ export async function me(req, res, next) {
         email: user.email,
         role: user.role,
         full_name: user.full_name,
+        subscription_tier: user.subscription_tier || 'business',
         ...(lawyerProfile && { lawyer: lawyerProfile })
       },
     });

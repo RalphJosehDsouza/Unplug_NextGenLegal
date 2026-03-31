@@ -21,6 +21,24 @@ import { GenerateDocument } from './pages/DocStudio/GenerateDocument';
 import { MyDocuments } from './pages/MyDocuments';
 import { MyBookings } from './pages/MyBookings';
 import { CourtHousePage } from './pages/CourtHousePage';
+import { KycBanner } from './components/lawyers/KycBanner';
+import { Earnings } from './pages/LawyerDashboard/Earnings';
+import { KYC } from './pages/LawyerDashboard/KYC';
+import { LegalNoticePage } from './pages/LegalNotice';
+import { LawMapperPage } from './pages/LawMapper';
+import { ECourtsPage } from './pages/eCourts';
+import { RTIPage } from './pages/RTI';
+import { DocReviewPage } from './pages/DocReview';
+import { PricingPage } from './pages/PricingPage';
+
+// New feature pages
+import { BusinessRegistration } from './pages/BusinessRegistration';
+import { TrademarkPage } from './pages/Trademark';
+import { ContractAuditPage } from './pages/ContractAudit';
+import { BusinessNameGenerator } from './pages/BusinessNameGenerator';
+import { LogoMaker } from './pages/LogoMaker';
+import { RegisteredAgentPage } from './pages/RegisteredAgent';
+import { EnterprisePage } from './pages/Enterprise';
 
 function App() {
   const navigate = useNavigate();
@@ -93,10 +111,13 @@ function App() {
           onLogin={navigateToLogin} 
           onLogout={handleLogout}
         />
+        <KycBanner />
         
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<LandingPage onRegister={navigateToRegister} />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/enterprise" element={<EnterprisePage />} />
             <Route path="/lawyers" element={isLoggedIn ? (user?.role === 'lawyer' ? <Navigate to="/dashboard" replace /> : <LawyersPage />) : <Navigate to="/login" replace />} />
             <Route path="/lawyers/:id" element={isLoggedIn ? <LawyerProfilePage /> : <Navigate to="/login" replace />} />
             <Route path="/documents" element={isLoggedIn ? <DocumentsPage /> : <Navigate to="/login" replace />} />
@@ -128,11 +149,38 @@ function App() {
                 )
               }
             />
+            <Route path="/ecourts" element={isLoggedIn ? <ECourtsPage /> : <Navigate to="/login" replace />} />
+            <Route path="/law-mapper" element={isLoggedIn ? <LawMapperPage /> : <Navigate to="/login" replace />} />
+            <Route path="/rti" element={isLoggedIn ? <RTIPage /> : <Navigate to="/login" replace />} />
+            <Route
+              path="/doc-review"
+              element={isLoggedIn ? <DocReviewPage /> : <Navigate to="/login" replace />}
+            />
             
             <Route 
               path="/dashboard" 
               element={isLoggedIn ? <DashboardPage user={user} /> : <Navigate to="/login" replace />} 
             />
+            <Route
+              path="/legal-notice"
+              element={isLoggedIn ? <LegalNoticePage /> : <Navigate to="/login" replace />}
+            />
+            <Route 
+              path="/lawyers/earnings" 
+              element={isLoggedIn && user?.role === 'lawyer' ? <Earnings /> : <Navigate to="/dashboard" replace />} 
+            />
+            <Route 
+              path="/lawyers/kyc" 
+              element={isLoggedIn && user?.role === 'lawyer' ? <KYC /> : <Navigate to="/dashboard" replace />} 
+            />
+
+            {/* New feature routes */}
+            <Route path="/business-registration" element={isLoggedIn ? <BusinessRegistration /> : <Navigate to="/login" replace />} />
+            <Route path="/trademark" element={isLoggedIn ? <TrademarkPage /> : <Navigate to="/login" replace />} />
+            <Route path="/contract-audit" element={isLoggedIn ? <ContractAuditPage /> : <Navigate to="/login" replace />} />
+            <Route path="/business-name-generator" element={isLoggedIn ? <BusinessNameGenerator /> : <Navigate to="/login" replace />} />
+            <Route path="/logo-maker" element={isLoggedIn ? <LogoMaker /> : <Navigate to="/login" replace />} />
+            <Route path="/registered-agent" element={isLoggedIn ? <RegisteredAgentPage /> : <Navigate to="/login" replace />} />
           </Routes>
         </main>
 

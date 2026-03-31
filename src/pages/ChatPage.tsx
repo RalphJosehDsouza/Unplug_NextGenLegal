@@ -76,13 +76,13 @@ export function ChatPage() {
   return (
     <div className="pt-20 min-h-screen bg-gray-50 flex flex-col">
       <div className="max-w-4xl w-full mx-auto p-4 flex-1 flex flex-col">
-        <div className="bg-indigo-600 text-white p-6 rounded-t-2xl flex items-center gap-4">
+        <div className="bg-red-600 text-white p-6 rounded-t-2xl flex items-center gap-4">
           <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
             <Bot className="w-6 h-6" />
           </div>
           <div>
             <h1 className="text-2xl font-bold">Legal AI Assistant</h1>
-            <p className="text-indigo-100">Powered by Gemini - Trained on Indian Law</p>
+            <p className="text-red-100">Powered by Gemini - Trained on Indian Law</p>
           </div>
         </div>
 
@@ -93,17 +93,17 @@ export function ChatPage() {
               className={`flex gap-4 max-w-[80%] ${message.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
             >
               <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                message.sender === 'user' ? 'bg-gray-200' : 'bg-indigo-100'
+                message.sender === 'user' ? 'bg-gray-200' : 'bg-red-100'
               }`}>
                 {message.sender === 'user' ? (
                   <User className="w-5 h-5 text-gray-600" />
                 ) : (
-                  <Sparkles className="w-5 h-5 text-indigo-600" />
+                  <Sparkles className="w-5 h-5 text-red-600" />
                 )}
               </div>
               <div className={`p-4 rounded-2xl text-[15px] leading-relaxed ${
                 message.sender === 'user' 
-                  ? 'bg-indigo-600 text-white rounded-tr-sm' 
+                  ? 'bg-red-600 text-white rounded-tr-sm' 
                   : 'bg-gray-100 text-gray-800 rounded-tl-sm'
               }`}>
                 {message.text.split('\n').map((line, i) => (
@@ -116,8 +116,8 @@ export function ChatPage() {
           ))}
           {isTyping && (
             <div className="flex gap-4">
-              <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-indigo-600" />
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-red-600" />
               </div>
               <div className="bg-gray-100 p-4 rounded-2xl rounded-tl-sm flex items-center">
                 <div className="flex gap-1.5">
@@ -138,12 +138,12 @@ export function ChatPage() {
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask a legal question..."
-              className="flex-1 text-base py-6 px-4 bg-gray-50 border-gray-200 focus-visible:ring-indigo-500 rounded-xl"
+              className="flex-1 text-base py-6 px-4 bg-gray-50 border-gray-200 focus-visible:ring-red-500 rounded-xl"
             />
             <Button
               onClick={handleSendMessage}
               disabled={!inputMessage.trim() || isTyping}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white h-auto px-8 rounded-xl"
+              className="bg-red-600 hover:bg-red-700 text-white h-auto px-8 rounded-xl"
             >
               <Send className="w-5 h-5" />
             </Button>

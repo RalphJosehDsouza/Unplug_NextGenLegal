@@ -86,7 +86,7 @@ export function AuthModal({ isOpen, onClose, mode, onLogin }: AuthModalProps) {
       {/* Modal */}
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
         {/* Header */}
-        <div className="bg-indigo-600 p-6 text-white">
+        <div className="bg-red-600 p-6 text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
@@ -94,7 +94,7 @@ export function AuthModal({ isOpen, onClose, mode, onLogin }: AuthModalProps) {
               </div>
               <div>
                 <h2 className="text-xl font-bold">NextGenLegal</h2>
-                <p className="text-sm text-indigo-100">
+                <p className="text-sm text-red-100">
                   {currentMode === 'login' ? 'Welcome back!' : 'Create your account'}
                 </p>
               </div>
@@ -195,7 +195,7 @@ export function AuthModal({ isOpen, onClose, mode, onLogin }: AuthModalProps) {
                   <input type="checkbox" className="rounded border-gray-300" />
                   <span className="text-gray-600">Remember me</span>
                 </label>
-                <button type="button" className="text-indigo-600 hover:text-indigo-700 font-medium">
+                <button type="button" className="text-red-600 hover:text-red-700 font-medium">
                   Forgot password?
                 </button>
               </div>
@@ -204,7 +204,7 @@ export function AuthModal({ isOpen, onClose, mode, onLogin }: AuthModalProps) {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-6"
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-6"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -270,7 +270,7 @@ export function AuthModal({ isOpen, onClose, mode, onLogin }: AuthModalProps) {
             <button
               type="button"
               onClick={() => setCurrentMode(currentMode === 'login' ? 'register' : 'login')}
-              className="ml-1 text-indigo-600 hover:text-indigo-700 font-medium"
+              className="ml-1 text-red-600 hover:text-red-700 font-medium"
             >
               {currentMode === 'login' ? 'Sign up' : 'Sign in'}
             </button>
